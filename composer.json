@@ -21,7 +21,7 @@
     }
   ],
   "require": {
-    "php": ">=5.3",
+    "php": ">=8.0",
     "usabilitydynamics/lib-ui": "~0.3.5",
     "usabilitydynamics/lib-utility": "~0.3.7",
     "usabilitydynamics/lib-settings": "~0.2.3",
@@ -41,19 +41,15 @@
   },
   "archive": {
     "exclude": [
+      ".git",
+      ".github",
       ".gitignore",
-      ".scrutinizer.yml",
-      "alpha.php",
-      "beta.php",
-      "build.sh",
-      "makefile",
-      "node_modules",
-      "test",
-      "static/cache",
-      "static/wiki",
-      "circle.yml",
       "composer.lock",
-      "gruntfile.js",
+      "node_modules",
+      "static/cache",
+      "static/codex",
+      "static/styles/src",
+      "vendor/composer/installers",
       "vendor/libraries/usabilitydynamics/lib-ui/static/scripts/src",
       "vendor/libraries/usabilitydynamics/lib-ui/static/scripts/editor",
       "vendor/libraries/usabilitydynamics/lib-ui/static/styles/src",
@@ -62,8 +58,7 @@
       "vendor/libraries/usabilitydynamics/lib-ud-api-client/static/css/src",
       "vendor/libraries/usabilitydynamics/lib-settings/test",
       "vendor/libraries/usabilitydynamics/lib-utility/test",
-      "vendor/libraries/usabilitydynamics/lib-utility/scripts/src",
-      "package.json"
+      "vendor/libraries/usabilitydynamics/lib-utility/scripts/src"
     ]
   },
   "extra": {
