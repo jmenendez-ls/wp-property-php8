@@ -1239,8 +1239,9 @@ class class_wpp_supermap {
     ob_start();
 
     if(!empty($properties)) : ?>
+      <?php $safe_random = preg_replace('/[^a-zA-Z0-9_]/', '', $safe_random); ?>
       var HTML = '';
-      window.supermap_<?php echo $_POST['random']; ?>.total = '<?php echo $property_ids['total']; ?>';
+      window.supermap_<?php echo $safe_random; ?>.total = '<?php echo $property_ids['total']; ?>';
       <?php
 
       $labels_to_keys = array_flip($wp_properties['property_stats']);
@@ -1250,53 +1251,53 @@ class class_wpp_supermap {
           continue;
         }
       ?>
-      window.myLatlng_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?> = new google.maps.LatLng(<?php echo $value['latitude']; ?>,<?php echo $value['longitude']; ?>);
-      window.content_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?> = '<?php echo WPP_F::google_maps_infobox($value); ?>';
+      window.myLatlng_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?> = new google.maps.LatLng(<?php echo $value['latitude']; ?>,<?php echo $value['longitude']; ?>);
+      window.content_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?> = '<?php echo WPP_F::google_maps_infobox($value); ?>';
 
-      window.marker_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?> = new google.maps.Marker({
-        position: myLatlng_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>,
-        map: map_<?php echo $_POST['random']; ?>,
-        title: '<?php echo str_replace("'","\'", $value['location']); ?>',
+      window.marker_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?> = new google.maps.Marker({
+        position: myLatlng_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>,
+        map: map_<?php echo $safe_random; ?>,
+        title: '<?php echo esc_js($value['location']); ?>',
         icon: '<?php echo apply_filters('wpp_supermap_marker', '', $value['ID']); ?>'
       });
 
-      window.markers_<?php echo $_POST['random']; ?>.push(window.marker_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>);
+      window.markers_<?php echo $safe_random; ?>.push(window.marker_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>);
 
-      google.maps.event.addListener(marker_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>, 'click', function() {
-        infowindow_<?php echo $_POST['random']; ?>.close();
-        infowindow_<?php echo $_POST['random']; ?>.setContent(content_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>);
-        infowindow_<?php echo $_POST['random']; ?>.open(map_<?php echo $_POST['random']; ?>,marker_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>);
+      google.maps.event.addListener(marker_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>, 'click', function() {
+        infowindow_<?php echo $safe_random; ?>.close();
+        infowindow_<?php echo $safe_random; ?>.setContent(content_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>);
+        infowindow_<?php echo $safe_random; ?>.open(map_<?php echo $safe_random; ?>,marker_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>);
         loadFuncy();
-        makeActive(<?php echo $_POST['random']; ?>,<?php echo $value['ID']; ?>);
+        makeActive(<?php echo $safe_random; ?>,<?php echo $value['ID']; ?>);
       });
 
-      google.maps.event.addListener(infowindow_<?php echo $_POST['random']; ?>, 'domready', function() {
+      google.maps.event.addListener(infowindow_<?php echo $safe_random; ?>, 'domready', function() {
         document.getElementById('infowindow').parentNode.style.overflow='';
         document.getElementById('infowindow').parentNode.parentNode.style.overflow='';
       });
 
-      bounds_<?php echo $_POST['random']; ?>.extend(window.myLatlng_<?php echo $_POST['random']; ?>_<?php echo $value['ID']; ?>);
-      map_<?php echo $_POST['random']; ?>.fitBounds(bounds_<?php echo $_POST['random']; ?>);
+      bounds_<?php echo $safe_random; ?>.extend(window.myLatlng_<?php echo $safe_random; ?>_<?php echo $value['ID']; ?>);
+      map_<?php echo $safe_random; ?>.fitBounds(bounds_<?php echo $safe_random; ?>);
 
-      HTML += '<?php echo str_replace("'","\'", trim( preg_replace('/\s\s+/', ' ', ud_get_wpp_supermap()->render_property_item( $value, array( 'rand' => $_POST['random'], 'supermap_configuration' => $supermap_configuration, ), true ) ) ) ); ?>';
+      HTML += '<?php echo str_replace("'","\'", trim( preg_replace('/\s\s+/', ' ', ud_get_wpp_supermap()->render_property_item( $value, array( 'rand' => $safe_random, 'supermap_configuration' => $supermap_configuration, ), true ) ) ) ); ?>';
 
       <?php } ?>
 
-      var wpp_supermap_<?php echo $_POST['random']; ?> = document.getElementById('super_map_list_property_<?php echo $_POST['random']; ?>');
+      var wpp_supermap_<?php echo $safe_random; ?> = document.getElementById('super_map_list_property_<?php echo $safe_random; ?>');
 
-      if( wpp_supermap_<?php echo $_POST['random']; ?> !== null ) {
-        wpp_supermap_<?php echo $_POST['random']; ?>.innerHTML += HTML;
+      if( wpp_supermap_<?php echo $safe_random; ?> !== null ) {
+        wpp_supermap_<?php echo $safe_random; ?>.innerHTML += HTML;
       }
 
     <?php else : ?>
 
-      window.supermap_<?php echo $_POST['random']; ?>.total = '0';
+      window.supermap_<?php echo $safe_random; ?>.total = '0';
 
-      var wpp_supermap_<?php echo $_POST['random']; ?> = document.getElementById("super_map_list_property_<?php echo $_POST['random']; ?>");
+      var wpp_supermap_<?php echo $safe_random; ?> = document.getElementById("super_map_list_property_<?php echo $safe_random; ?>");
       var y = '<div style="text-align:center;" class="no_properties"><?php _e('No results found.', ud_get_wpp_supermap()->domain); ?></div>';
 
-      if( wpp_supermap_<?php echo $_POST['random']; ?> !== null ) {
-        wpp_supermap_<?php echo $_POST['random']; ?>.innerHTML += y;
+      if( wpp_supermap_<?php echo $safe_random; ?> !== null ) {
+        wpp_supermap_<?php echo $safe_random; ?>.innerHTML += y;
       }
 
     <?php endif; ?>

@@ -17,6 +17,8 @@ namespace UsabilityDynamics\WPP {
 
       public $core;
 
+      public $alias;
+
       /**
        * Singleton Instance Reference.
        *

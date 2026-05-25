@@ -2038,6 +2038,8 @@ class class_wpp_pdf_flyer {
    * @return json
    */
   static public function ajax_get_properties () {
+    check_ajax_referer('wpp_pdf_action', 'nonce');
+    if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
     global $wpdb;
     ob_start();
     $ids = $wpdb->get_results("
@@ -2062,6 +2064,8 @@ class class_wpp_pdf_flyer {
    * @return json
    */
   static public function ajax_generate_pdf_flyer () {
+    check_ajax_referer('wpp_pdf_action', 'nonce');
+    if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
     ob_start();
     $result = array(
         "success" => 1
@@ -2088,6 +2092,8 @@ class class_wpp_pdf_flyer {
    * @return json
    */
   static public function ajax_generate_pdf_list () {
+    check_ajax_referer('wpp_pdf_action', 'nonce');
+    if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
     ob_start();
     $result = array(
         "success" => 1

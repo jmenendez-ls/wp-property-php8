@@ -21,7 +21,6 @@ namespace UsabilityDynamics\WPP {
         add_action( 'wpp_settings_help_tab', array( $this, 'help_tab' ), 10, 4 );
 
         add_action( 'wp_ajax_wpp_export_properties', array( $this, 'wpp_export_properties' ) );
-        add_action( 'wp_ajax_nopriv_wpp_export_properties', array( $this, 'wpp_export_properties' ) );
 
         /** May be export properties to CSV file */
         add_action( "template_redirect", array( $this, 'maybe_export_properties_to_scv' ) );
@@ -88,6 +87,10 @@ namespace UsabilityDynamics\WPP {
        *
        */
       public function wpp_export_properties() {
+        check_ajax_referer('wpp_export_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_die(__('Unauthorized access.', 'wpp'), 403);
+        }
         global $wp_properties;
 
         ini_set( 'memory_limit', -1 );

@@ -1725,7 +1725,7 @@ if( !class_exists( 'phRETS' ) ) {
       if( $cur_encoding == "UTF-8" && mb_check_encoding( $in_str, "UTF-8" ) ) {
         return $in_str;
       } else {
-        return utf8_encode( $in_str );
+        return mb_convert_encoding( $in_str, 'UTF-8', 'ISO-8859-1' );
       }
     }
 

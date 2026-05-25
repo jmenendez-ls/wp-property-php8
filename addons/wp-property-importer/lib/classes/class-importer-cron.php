@@ -112,7 +112,7 @@ namespace UsabilityDynamics\WPP {
           case 'shell':
             $cron_path = ud_get_wpp_importer()->path( 'cron.php', 'dir' );
             //@exec('nohup curl "' . $url . '" > /dev/null 2>&1 &');
-            @exec( 'nohup php -q ' . $cron_path . ' do_xml_import ' . $args['hash'] . ' > /dev/null 2>&1 &' );
+            wp_schedule_single_event( time(), 'wpp_importer_cron_run', array( $args['hash'] ) );
             break;
 
         }

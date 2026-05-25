@@ -105,7 +105,7 @@ if (is_array($searchable_property_types) && !array_key_exists('property_type', a
 
             <div class="wpp_search_attribute_wrap">
               <?php
-              $value = isset($_REQUEST['wpp_search'][$attrib]) ? $_REQUEST['wpp_search'][$attrib] : '';
+              $value = isset($_REQUEST['wpp_search'][$attrib]) ? (is_array($_REQUEST['wpp_search'][$attrib]) ? array_map('sanitize_text_field', $_REQUEST['wpp_search'][$attrib]) : sanitize_text_field($_REQUEST['wpp_search'][$attrib])) : '';
               ob_start();
               wpp_render_search_input(array(
                 'attrib' => $attrib,

@@ -69,9 +69,7 @@ namespace UsabilityDynamics\WPRETSC {
               return array_filter(array(
                 'ok' => false,
                 'error' => "Unable to login.",
-                'errorCode' => 401,
-                'username' => isset( $_SERVER[ 'HTTP_X_ACCESS_USER' ] ) ? $_SERVER[ 'HTTP_X_ACCESS_USER' ] : '',
-                'password' => isset( $_SERVER[ 'HTTP_X_ACCESS_PASSWORD' ] ) ? $_SERVER[ 'HTTP_X_ACCESS_PASSWORD' ] : ''
+                'errorCode' => 401
               ));
 
             }
@@ -161,41 +159,49 @@ namespace UsabilityDynamics\WPRETSC {
         register_rest_route( 'wp-rets-client/v1', '/systemCheck', array(
           'methods' => 'GET',
           'callback' => array( $this, 'rpc_system_check' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/systemPing', array(
           'methods' => 'GET',
           'callback' => array( $this, 'rpc_system_ping' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/deleteProperty', array(
           'methods' => array( 'POST', 'GET' ),
           'callback' => array( $this, 'rpc_delete_property' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/trashProperty', array(
           'methods' => array( 'POST', 'GET' ),
           'callback' => array( $this, 'rpc_trash_property' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/getPostIdByMlsId', array(
           'methods' => array( 'POST', 'GET' ),
           'callback' => array( $this, 'rpc_get_post_id_by_mls_id' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/editProperty', array(
           'methods' => 'POST',
           'callback' => array( $this, 'rpc_edit_property' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/updateProperty', array(
           'methods' => 'POST',
           'callback' => array( $this, 'rpc_update_property' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/getProperty', array(
           'methods'   => array('GET', 'POST' ),
           'callback'  => array( $this, 'rpc_get_property' ),
+          'permission_callback' => '__return_true',
           'args'      => array(
             'ID' => array(
               'default' => null,
@@ -212,30 +218,36 @@ namespace UsabilityDynamics\WPRETSC {
         register_rest_route( 'wp-rets-client/v1', '/createProperty', array(
           'methods' => 'POST',
           'callback' => array( $this, 'rpc_create_property' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/removeDuplicates', array(
           'methods' => 'POST',
           'callback' => array( $this, 'rpc_remove_duplicated_mls' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/getHistogram', array(
           'methods' => 'GET',
           'callback' => array( $this, 'rpc_get_modified_histogram' ),
+          'permission_callback' => '__return_true',
         ) );
 
         register_rest_route( 'wp-rets-client/v1', '/cleanupProcess', array(
           'methods' => 'GET',
           'callback' => array( $this, 'rpc_cleanup_process' ),
+          'permission_callback' => '__return_true',
         ));
 
         register_rest_route( 'wp-rets-client/v1', '/scheduleStats', array(
           'methods' => array( 'POST', 'GET' ),
           'callback' => array( $this, 'rpc_get_schedule_stats' ),
+          'permission_callback' => '__return_true',
         ));
 
         register_rest_route( 'wp-rets-client/v1', '/scheduleListings', array(
           'methods' => array( 'POST', 'GET' ),
+          'permission_callback' => '__return_true',
           'args'            => array(
             'per_page' => array(
               'default' => 10,
@@ -274,6 +286,7 @@ namespace UsabilityDynamics\WPRETSC {
         register_rest_route( 'wp-rets-client/v1', '/insertMedia', array(
           'methods' => 'POST',
           'callback' => array( $this, 'rpc_insert_media' ),
+          'permission_callback' => '__return_true',
           'args'      => array(
             'post_id' => array(
               'default' => null,

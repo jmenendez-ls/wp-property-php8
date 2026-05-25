@@ -316,7 +316,7 @@ class RW_Meta_Box {
 	 * @return bool
 	 */
 	public function validate() {
-		$nonce = filter_input( INPUT_POST, "nonce_{$this->id}", FILTER_SANITIZE_STRING );
+		$nonce = filter_input( INPUT_POST, "nonce_{$this->id}", FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		return ! $this->saved
 			&& ( ! defined( 'DOING_AUTOSAVE' ) || $this->autosave )

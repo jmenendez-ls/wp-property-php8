@@ -223,20 +223,30 @@ class WPP_Core {
 
     /** Ajax functions */
     add_action( 'wp_ajax_wpp_ajax_max_set_property_type', function() {
-      die(WPP_F::mass_set_property_type($_REQUEST["property_type"]));
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
+      die(WPP_F::mass_set_property_type(sanitize_text_field($_REQUEST["property_type"])));
     } );
     add_action( 'wp_ajax_wpp_ajax_image_query', function() {
-      $class = WPP_F::get_property_image_data($_REQUEST["image_id"]);
-      if($class) print_r($class);
-      else echo __("No image found.","wpp"); die();
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
+      $class = WPP_F::get_property_image_data(sanitize_text_field($_REQUEST["image_id"]));
+      if($class) wp_send_json_success($class);
+      else wp_send_json_error(__("No image found.","wpp"));
     } );
     add_action( 'wp_ajax_wpp_ajax_revalidate_all_addresses', function() {
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
       echo WPP_F::revalidate_all_addresses(); die();
     } );
     add_action( 'wp_ajax_wpp_ajax_create_settings_backup', function() {
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
       echo WPP_F::create_settings_backup(); die();
     } );
     add_action( 'wp_ajax_wpp_save_settings', function() {
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
       die(WPP_F::save_settings());
     } );
     if(WPP_FEATURE_FLAG_SETTINGS_V2){
@@ -248,11 +258,14 @@ class WPP_Core {
       die(WPP_F::apply_default_value());
     } );
     add_action( 'wp_ajax_wpp_ajax_print_wp_properties', function() {
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
       global $wp_properties;
-      print_r($wp_properties);
-      die();
+      wp_send_json_success($wp_properties);
     } );
     add_action( 'wp_ajax_wpp_ajax_generate_is_remote_meta', function() {
+      check_ajax_referer('wpp_admin_action', 'nonce');
+      if (!current_user_can('manage_options')) { wp_send_json_error('Unauthorized'); }
       WPP_F::generate_is_remote_meta(); die();
     } );
 

@@ -994,7 +994,7 @@ namespace UsabilityDynamics\WPRETSC {
             'number'        => 100,
             'hierarchical'  => false,
             'hide_empty'    => false,
-          ), 'term', array( __CLASS__, '_update_terms_counts_helper' ), true );
+          ), array( __CLASS__, '_update_terms_counts_helper' ), 'term', true );
 
         }
 

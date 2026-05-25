@@ -118,6 +118,9 @@ if($cron_action == 'do_xml_import' && !empty($schedule_hash)) {
     exit(0);
 
 } elseif($cron_action == 'erase_all_properties') {
+  if (php_sapi_name() !== 'cli') {
+    die('This action is only available via CLI.');
+  }
   global $wpdb;
   $wpdb->show_errors();
   /** First, delete attachments */

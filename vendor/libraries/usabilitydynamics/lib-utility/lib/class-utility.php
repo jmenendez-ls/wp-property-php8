@@ -306,7 +306,7 @@ namespace UsabilityDynamics {
           $token = str_replace( '%2B', md5( '%2B' ), $token );
           $arr = array();
           parse_str( $token, $arr );
-          array_walk_recursive( $arr, create_function( '&$value,$key', '$value = str_replace( md5( "%2B" ), "+", $value );' ) );
+          array_walk_recursive( $arr, function( &$value, $key ) { $value = str_replace( md5( "%2B" ), "+", $value ); } );
           $data = self::extend( $data, $arr );
         }
         return $data;
@@ -2015,7 +2015,7 @@ namespace UsabilityDynamics {
 
           return false;
         }
-        add_action( 'admin_menu', create_function( '', "add_menu_page( __( 'Log' ,UD_API_Transdomain ), __( 'Log',UD_API_Transdomain ), current_user_can( 'manage_options' ), 'ud_log', array( 'UD_API', 'show_log_page' ) );" ) );
+        add_action( 'admin_menu', function() { add_menu_page( __( 'Log', UD_API_Transdomain ), __( 'Log', UD_API_Transdomain ), 'manage_options', 'ud_log', array( 'UD_API', 'show_log_page' ) ); } );
       }
 
       /**
@@ -2084,7 +2084,7 @@ namespace UsabilityDynamics {
       static public function replace_data( $str = '', $values = array(), $brackets = array( 'left' => '[', 'right' => ']' ) ) {
         $values       = (array) $values;
         $replacements = array_keys( $values );
-        array_walk( $replacements, create_function( '&$val', '$val = "' . $brackets[ 'left' ] . '".$val."' . $brackets[ 'right' ] . '";' ) );
+        array_walk( $replacements, function( &$val ) use ( $brackets ) { $val = $brackets['left'] . $val . $brackets['right']; } );
 
         return str_replace( $replacements, array_values( $values ), $str );
       }
@@ -2311,7 +2311,9 @@ namespace UsabilityDynamics {
       static public function encrypt( $pt, $salt = false ) {
 
         if( !$salt ) $salt = AUTH_SALT;
-        $encrypted = base64_encode( mcrypt_encrypt( MCRYPT_RIJNDAEL_256, md5( $salt ), $pt, MCRYPT_MODE_CBC, md5( md5( $salt ) ) ) );
+        $key = md5( $salt );
+        $iv = substr( md5( md5( $salt ) ), 0, 16 );
+        $encrypted = base64_encode( openssl_encrypt( $pt, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv ) );
         $encrypted = str_replace( array( '+', '/', '=' ), array( '-', '_', '' ), $encrypted );
 
         return $encrypted;
@@ -2338,7 +2340,9 @@ namespace UsabilityDynamics {
         if( $mod4 ) {
           $data .= substr( '====', $mod4 );
         }
-        $decrypted = rtrim( mcrypt_decrypt( MCRYPT_RIJNDAEL_256, md5( $salt ), base64_decode( $data ), MCRYPT_MODE_CBC, md5( md5( $salt ) ) ), "\0" );
+        $key = md5( $salt );
+        $iv = substr( md5( md5( $salt ) ), 0, 16 );
+        $decrypted = openssl_decrypt( base64_decode( $data ), 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv );
 
         return ( $decrypted );
 
@@ -2389,7 +2393,7 @@ namespace UsabilityDynamics {
        * @author odokienko@UD
        */
       static public function cleanup_extra_whitespace( $content ) {
-        $content = preg_replace_callback( '~<(?:table|ul|ol )[^>]*>.*?<\/( ?:table|ul|ol )>~ims', create_function( '$matches', 'return preg_replace(\'~>[\s]+<((?:t[rdh]|li|\/tr|/table|/ul ))~ims\',\'><$1\',$matches[0]);' ), $content );
+        $content = preg_replace_callback( '~<(?:table|ul|ol )[^>]*>.*?<\/( ?:table|ul|ol )>~ims', function( $matches ) { return preg_replace( '~>[\s]+<((?:t[rdh]|li|\/tr|/table|/ul ))~ims', '><$1', $matches[0] ); }, $content );
 
         return $content;
       }
@@ -2535,7 +2539,7 @@ namespace UsabilityDynamics {
        */
       static public function json_encode( $arr ) {
         // convmap since 0x80 char codes so it takes all multibyte codes (above ASCII 127). So such characters are being "hidden" from normal json_encoding
-        array_walk_recursive( $arr, create_function( '&$item, $key', 'if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), "UTF-8");' ) );
+        array_walk_recursive( $arr, function( &$item, $key ) { if (is_string($item)) $item = mb_encode_numericentity($item, array(0x80, 0xffff, 0, 0xffff), 'UTF-8'); } );
         return mb_decode_numericentity( json_encode( $arr ), array( 0x80, 0xffff, 0, 0xffff ), 'UTF-8' );
       }
 

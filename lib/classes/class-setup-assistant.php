@@ -77,6 +77,10 @@ namespace UsabilityDynamics\WPP {
        * @author raj
        */
       static public function save_setup_settings() {
+        check_ajax_referer('wpp_setup_assistant', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+        }
 
         $data = WPP_F::parse_str( $_REQUEST[ 'data' ] );
 
@@ -150,6 +154,10 @@ namespace UsabilityDynamics\WPP {
        * @author potanin@UD
        */
       static public function insert_demo_properties( ) {
+        check_ajax_referer('wpp_setup_assistant', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+        }
 
         $_result = array();
 
@@ -168,6 +176,10 @@ namespace UsabilityDynamics\WPP {
        * @author potanin@UD
        */
       static public function flush_demo_properties() {
+        check_ajax_referer('wpp_setup_assistant', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+        }
 
         $_query = array(
           'post_type' => 'property',

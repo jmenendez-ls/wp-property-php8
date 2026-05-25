@@ -826,12 +826,12 @@ class class_wpp_property_import {
 
       /** Run a normal curl command, although we're not relying on Curl, as it doesn't handle non blocking requests well */
       self::maybe_echo_log( 'Attempting to call URL: ' . $url );
-      add_filter( 'use_curl_transport', create_function( '$value', 'return false;' ) );
+      add_filter( 'use_curl_transport', function( $value ) { return false; } );
       if( !XMLI_SYSTEM_COMMAND_CRON ) {
         $result = wp_remote_get( $url, array( 'blocking' => false, 'sslverify'   => false, 'headers' => array( 'Cache-Control' => 'private, max-age=0, no-cache, no-store, must-revalidate' ) ) );
         do_action( 'xmli_wp_remote_get', $url );
       } else {
-        exec( 'nohup curl "' . $url . '" > /dev/null 2>&1 &' );
+        wp_remote_get( $url, array( 'blocking' => false, 'sslverify' => false ) );
       }
     }
   }
@@ -1656,6 +1656,12 @@ class class_wpp_property_import {
    * Copyright 2010 - 2012 Usability Dynamics, Inc. <info@usabilitydynamics.com>
    */
   static public function admin_ajax_handler( $from_cron = false ) {
+    if (!$from_cron) {
+      check_ajax_referer('wpp_import_action', 'nonce');
+      if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+      }
+    }
     global $wpp_property_import, $wp_properties, $wpdb, $wpp_import_result_stats;
 
     $wpp_action = isset( $_REQUEST[ 'wpp_action' ] ) ? $_REQUEST[ 'wpp_action' ] : false;
@@ -1910,7 +1916,7 @@ class class_wpp_property_import {
           $request_method = !empty( $data[ 'wpp_property_import' ][ 'postauth' ] ) ? 'post' : 'get';
           //** Try to open the provided file, if RETS feed, data converted into XML and images are downloaded. If source eval, RETS only gets first result. */
           self::maybe_echo_memory_usage( sprintf( __( 'before %s', ud_get_wpp_importer()->domain ), 'wpp_make_request()' ), $schedule_id );
-          $response = class_wpp_property_import::wpp_make_request( $data[ 'wpp_property_import' ][ 'url' ], $request_method, $data );
+          $response = class_wpp_property_import::wpp_make_request( $data[ 'wpp_property_import' ][ 'url' ], $data, $request_method );
           self::maybe_echo_memory_usage( sprintf( __( 'after %s', ud_get_wpp_importer()->domain ), 'wpp_make_request()' ), $schedule_id );
           class_wpp_property_import::maybe_echo_log( "Raw feed data loaded from live source." );
           $result[ 'data_from_cache' ] = false;
@@ -2494,7 +2500,7 @@ class class_wpp_property_import {
       }
       die( $json_encode );
     } else {
-      $result[ 'ui' ] = !empty( $result[ 'ui' ] ) ? utf8_encode( $result[ 'ui' ] ) : false;
+      $result[ 'ui' ] = !empty( $result[ 'ui' ] ) ? mb_convert_encoding( $result[ 'ui' ], 'UTF-8', 'ISO-8859-1' ) : false;
       return $result;
     }
 
@@ -3106,7 +3112,7 @@ class class_wpp_property_import {
    * @param $data
    * @return array|WP_Error
    */
-  static public function wpp_make_request( $url, $method = 'get', $data ) {
+  static public function wpp_make_request( $url, $data, $method = 'get' ) {
     global $wpp_property_import, $wpp_import_result_stats, $wp_properties;
 
     //** Set schedule ID */
@@ -4021,7 +4027,7 @@ class class_wpp_property_import {
     //$message[] = "Update from XML Importer:\n";
     $message[ ] = '<div style="font-size: 1.6em;margin-bottom: 5px;">XML Importer: ' . $short_text . '</div><div style="font-size: 1em;color:#555555;">' . $message_text . '</div>';
 
-    add_filter( 'wp_mail_content_type', create_function( '', 'return "text/html";' ) );
+    add_filter( 'wp_mail_content_type', function() { return 'text/html'; } );
 
     if( wp_mail( $notification_email, $subject, implode( '', $message ), $headers ) ) {
       return true;

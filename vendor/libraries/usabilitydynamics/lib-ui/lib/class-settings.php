@@ -157,7 +157,7 @@ namespace UsabilityDynamics\UI {
         
         if( $changed ) {
           $this->_settings->commit();
-          wp_redirect( $_POST[ '_wp_http_referer' ] . '&message=updated' );
+          wp_safe_redirect( $_POST[ '_wp_http_referer' ] . '&message=updated' );
           exit;
         }
         

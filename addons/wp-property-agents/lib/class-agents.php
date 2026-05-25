@@ -248,6 +248,10 @@ class class_agents
 
   public static function save_agent_image()
   {
+    check_ajax_referer('wpp_save_agent_image', 'nonce');
+    if (!current_user_can('manage_options')) {
+      wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+    }
     if (!empty($_POST['agent_id']) && !empty($_POST['attachment_id'])) {
       if (update_user_meta($_POST['agent_id'], 'agent_images', array($_POST['attachment_id']))) {
         wp_send_json_success(array(
@@ -1097,8 +1101,8 @@ class class_agents
       <?php endif; ?>
 
 
-      <?php if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'delete') : ?>
-        <?php self::delete_agent($_REQUEST['user_id']); ?>
+      <?php if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'delete' && isset($_REQUEST['_wpnonce']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'wpp_delete_agent_' . $_REQUEST['user_id']) && current_user_can('delete_users')) : ?>
+        <?php self::delete_agent(absint($_REQUEST['user_id'])); ?>
         <div class="updated fade" id="message"><p><?php _e('User removed.', ud_get_wpp_agents()->domain); ?></p></div>
       <?php endif; ?>
       <?php
@@ -1613,9 +1617,9 @@ class class_agents
 
     global $wpdb;
 
-    $wpdb->query($wpdb->prepare('UPDATE ' . $wpdb->users . ' SET user_email = "%s" WHERE ID = %d', array($email, $user_id)));
-    $wpdb->query($wpdb->prepare('UPDATE ' . $wpdb->users . ' SET user_nicename = "%s" WHERE ID = %d', array($display_name, $user_id)));
-    $wpdb->query($wpdb->prepare('UPDATE ' . $wpdb->users . ' SET display_name = "%s" WHERE ID = %d', array($display_name, $user_id)));
+    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->users} SET user_email = %s WHERE ID = %d", $email, $user_id));
+    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->users} SET user_nicename = %s WHERE ID = %d", $display_name, $user_id));
+    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->users} SET display_name = %s WHERE ID = %d", $display_name, $user_id));
   }
 
 

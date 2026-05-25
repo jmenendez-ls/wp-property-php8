@@ -22,7 +22,7 @@ if( !class_exists( 'RWMB_Wpp_Alias_Field' ) && class_exists( 'RWMB_Text_Field' )
       $_targets = explode( ',', $targets );
       foreach( $_targets as $target ) {
         $target = trim( $target );
-        $_alias_value = ud_get_wp_property()->alias->get_alias_value( $target, $post->ID );
+        $_alias_value = ud_get_wp_property()->alias->get_alias_value( $post->ID, $target );
         if( is_array( $_alias_value ) ) {
           $list = true;
         }

@@ -137,7 +137,7 @@ class TCPDF_STATIC {
 	public static function set_mqr($mqr) {
 		if (!defined('PHP_VERSION_ID')) {
 			$version = PHP_VERSION;
-			define('PHP_VERSION_ID', (($version{0} * 10000) + ($version{2} * 100) + $version{4}));
+			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
 		if (PHP_VERSION_ID < 50300) {
 			@set_magic_quotes_runtime($mqr);
@@ -153,7 +153,7 @@ class TCPDF_STATIC {
 	public static function get_mqr() {
 		if (!defined('PHP_VERSION_ID')) {
 			$version = PHP_VERSION;
-			define('PHP_VERSION_ID', (($version{0} * 10000) + ($version{2} * 100) + $version{4}));
+			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
 		if (PHP_VERSION_ID < 50300) {
 			return @get_magic_quotes_runtime();
@@ -2165,7 +2165,7 @@ class TCPDF_STATIC {
 				$attrib = strtolower(trim($attrib[0]));
 				if (!empty($attrib)) {
 					// check if matches class, id, attribute, pseudo-class or pseudo-element
-					switch ($attrib{0}) {
+					switch ($attrib[0]) {
 						case '.': { // class
 							if (in_array(substr($attrib, 1), $class)) {
 								$valid = true;
@@ -2232,7 +2232,7 @@ class TCPDF_STATIC {
 							break;
 						}
 						case ':': { // pseudo-class or pseudo-element
-							if ($attrib{1} == ':') { // pseudo-element
+							if ($attrib[1] == ':') { // pseudo-element
 								// pseudo-elements are not supported!
 								// (::first-line, ::first-letter, ::before, ::after)
 							} else { // pseudo-class

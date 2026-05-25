@@ -25,10 +25,7 @@ namespace UsabilityDynamics\WPP {
        *
        * @var array
        */
-      var $nopriv_actions = array(
-        'wpp_ws_get_properties_ids',
-        'wpp_ws_update_walkscore'
-      );
+      var $nopriv_actions = array();
 
       /**
        * Init AJAX actions
@@ -116,6 +113,10 @@ namespace UsabilityDynamics\WPP {
        * Returns All Properties IDs
        */
       public function action_wpp_ws_get_properties_ids( $args = false ) {
+        check_ajax_referer('wpp_walkscore_action', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+        }
         global $wpdb;
 
         /* Even do not continue if API key is not provided. */
@@ -172,6 +173,10 @@ namespace UsabilityDynamics\WPP {
        * Updates Walk Score for Property
        */
       public function action_wpp_ws_update_walkscore( $args = false ) {
+        check_ajax_referer('wpp_walkscore_action', 'nonce');
+        if (!current_user_can('manage_options')) {
+          wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+        }
 
         $args = wp_parse_args( $args, array(
           'post_id' => false,

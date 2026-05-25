@@ -1047,7 +1047,7 @@ class WPP_F extends UsabilityDynamics\Utility
 
     for ($i = 0; $i < $length; $i++) {
 
-      $current = ord($value{$i});
+      $current = ord($value[$i]);
 
       if (($current == 0x9) || ($current == 0xA) || ($current == 0xD) ||
         (($current >= 0x20) && ($current <= 0xD7FF)) ||
@@ -1767,10 +1767,10 @@ class WPP_F extends UsabilityDynamics\Utility
 
     if (is_numeric($requested_id)) {
 
-      $post_type = $wpdb->get_var("SELECT post_type FROM {$wpdb->posts} WHERE ID = '$requested_id'");
+      $post_type = $wpdb->get_var($wpdb->prepare("SELECT post_type FROM {$wpdb->posts} WHERE ID = %d", absint($requested_id)));
     } else {
       //** Try and image search */
-      $image_id = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_title LIKE '%{$requested_id}%' ");
+      $image_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_title LIKE %s", '%' . $wpdb->esc_like($requested_id) . '%'));
 
       if ($image_id) {
         $post_type = 'image';
@@ -1791,7 +1791,7 @@ class WPP_F extends UsabilityDynamics\Utility
         $image_data['ID'] = $img->ID;
         $image_data['post_title'] = $img->post_title;
 
-        $img_meta = $wpdb->get_results("SELECT meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = '{$img->ID}'");
+        $img_meta = $wpdb->get_results($wpdb->prepare("SELECT meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d", $img->ID));
 
         foreach ($img_meta as $i_m) {
           $image_data[$i_m->meta_key] = maybe_unserialize($i_m->meta_value);
@@ -1802,8 +1802,8 @@ class WPP_F extends UsabilityDynamics\Utility
 
     } else {
 
-      $data = $wpdb->get_row("SELECT * FROM {$wpdb->posts} WHERE ID = '$requested_id'");
-      $image_meta = $wpdb->get_results("SELECT meta_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = '$requested_id'");
+      $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->posts} WHERE ID = %d", absint($requested_id)));
+      $image_meta = $wpdb->get_results($wpdb->prepare("SELECT meta_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d", absint($requested_id)));
       foreach ($image_meta as $m_data) {
 
         print_r($m_data->meta_id);
@@ -3170,6 +3170,10 @@ class WPP_F extends UsabilityDynamics\Utility
    * @return array
    */
   public static function wpp_ajax_get_settings_page() {
+    check_ajax_referer('wpp_get_settings_page', 'nonce');
+    if (!current_user_can('manage_options')) {
+      wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+    }
     ud_get_wp_property()->core->wpp_settings_remove_lock();
     $return['lock_removed'] = true;
 
@@ -5300,7 +5304,7 @@ class WPP_F extends UsabilityDynamics\Utility
   static public function format_phone_number($phone_number)
   {
 
-    $phone_number = ereg_replace("[^0-9]", '', $phone_number);
+    $phone_number = preg_replace("/[^0-9]/", '', $phone_number);
     if (strlen($phone_number) != 10) return (False);
     $sArea = substr($phone_number, 0, 3);
     $sPrefix = substr($phone_number, 3, 3);
@@ -5706,8 +5710,9 @@ class WPP_F extends UsabilityDynamics\Utility
         $data[$k] = self::sanitize_request($v);
       }
     } else {
+      $data = $data ?? '';
       $data = strip_shortcodes($data);
-      $data = filter_var($data, FILTER_SANITIZE_STRING);
+      $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
     }
     return $data;
   }
@@ -5733,26 +5738,30 @@ class WPP_F extends UsabilityDynamics\Utility
    */
   static function apply_default_value()
   {
+    check_ajax_referer('wpp_apply_default_value', 'nonce');
+    if (!current_user_can('manage_options')) {
+      wp_send_json_error(array('message' => __('Unauthorized access.', 'wpp')));
+    }
     global $wpdb;
     $replaced_row = 0;
     $added_row = 0;
     $prefix = $wpdb->prefix;
     $data = $_POST['data'];
-    $attribute = $data['attribute'];
-    $value = $data['value'];
+    $attribute = sanitize_key($data['attribute']);
+    $value = sanitize_text_field($data['value']);
     $response = array();
     $property_label = WPP_F::property_label();
     $property_label_plural = WPP_F::property_label('plural');
 
-    $chk_meta_key = "SELECT DISTINCT p.ID FROM {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id  WHERE p.post_type = 'property' AND pm.meta_key = '$attribute'";
+    $chk_meta_key = $wpdb->prepare("SELECT DISTINCT p.ID FROM {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id WHERE p.post_type = 'property' AND pm.meta_key = %s", $attribute);
     if (isset($data['confirmed']) && $data['confirmed']) {
       if ($data['confirmed'] == 'all') {
-        $sql = "UPDATE {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id SET pm.meta_value = '$value' WHERE p.post_type = 'property' AND pm.meta_key = '$attribute'";
+        $sql = $wpdb->prepare("UPDATE {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id SET pm.meta_value = %s WHERE p.post_type = 'property' AND pm.meta_key = %s", $value, $attribute);
         $replaced_row = $wpdb->query($sql);
       }
 
       if ($data['confirmed'] == 'all' || $data['confirmed'] == 'empty-or-not-exist') {
-        $_chk_meta_key = "SELECT DISTINCT p.ID FROM {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id  WHERE p.post_type = 'property' AND pm.meta_key = '$attribute' and pm.meta_value != ''";
+        $_chk_meta_key = $wpdb->prepare("SELECT DISTINCT p.ID FROM {$wpdb->posts} AS p INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id WHERE p.post_type = 'property' AND pm.meta_key = %s AND pm.meta_value != ''", $attribute);
         $sql = "SELECT DISTINCT p.ID FROM {$wpdb->posts} AS p WHERE p.post_type = 'property' AND p.ID NOT IN($_chk_meta_key)";
         $results = $wpdb->get_results($sql);
         foreach ($results as $post) {

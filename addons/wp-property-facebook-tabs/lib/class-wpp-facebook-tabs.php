@@ -387,12 +387,12 @@ if( !class_exists( 'class_wpp_facebook_tabs' ) ) {
       if ( isset( $current_canvas['allow_inline_css'] ) && $current_canvas['allow_inline_css']=='true' && !empty( $current_canvas['inline_css_data'] ) ){
         global $wpp_inline_css;
         $wpp_inline_css = WPP_F::minify_css( $current_canvas['inline_css_data'] );
-        add_action('wp_head', create_function('', '
+        add_action('wp_head', function() {
           global $wpp_inline_css;
           echo "<style type=\"text/css\">";
           echo $wpp_inline_css;
           echo "</style>";
-        '));
+        });
         unset($wpp_inline_css);
       }
 

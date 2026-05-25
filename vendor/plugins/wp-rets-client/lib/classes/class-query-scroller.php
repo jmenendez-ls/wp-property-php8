@@ -25,7 +25,7 @@ namespace UsabilityDynamics {
        * @param $bulk
        * @return WP_Error | bool
        */
-      public function scroll( $query_args, $instance = 'post', $callback, $bulk = false ) {
+      public function scroll( $query_args, $callback, $instance = 'post', $bulk = false ) {
         if( !$callback || !is_callable( $callback ) ) {
           return new \WP_Error( __( 'Callback is not defined or not callable' ) );
         }

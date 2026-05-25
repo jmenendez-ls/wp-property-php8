@@ -118,6 +118,13 @@ namespace UsabilityDynamics\WPP {
        */
       public function action_wpp_clone_property( $args ) {
 
+        if (!check_ajax_referer('wpp_clone_property', 'nonce', false)) {
+          throw new \Exception( __( 'Security check failed.', ud_get_wp_property( 'domain' ) ) );
+        }
+        if (!current_user_can('edit_wpp_properties')) {
+          throw new \Exception( __( 'You do not have permission to clone properties.', ud_get_wp_property( 'domain' ) ) );
+        }
+
         if( empty( $args[ 'post_id' ] ) || !is_numeric( $args[ 'post_id' ] ) ) {
           throw new \Exception( __( 'Invalid Post ID', ud_get_wp_property( 'domain' ) ) );
         }

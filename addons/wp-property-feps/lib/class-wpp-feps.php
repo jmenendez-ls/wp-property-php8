@@ -129,10 +129,12 @@ class class_wpp_feps {
     add_action( "wp_ajax_nopriv_wpp_feps_image_delete", array("class_wpp_feps", "ajax_feps_image_delete" ) );
 
     add_action( "wp_ajax_wpp_feps_email_lookup", function(){
-      die(json_encode(class_wpp_feps::email_lookup($_REQUEST["user_email"],$_REQUEST["user_password"])));
+      check_ajax_referer('wpp_feps_action', 'nonce');
+      die(json_encode(class_wpp_feps::email_lookup(sanitize_email($_REQUEST["user_email"]), $_REQUEST["user_password"])));
     });
     add_action( "wp_ajax_nopriv_wpp_feps_email_lookup", function(){
-      die(json_encode(class_wpp_feps::email_lookup($_REQUEST["user_email"],$_REQUEST["user_password"])));
+      check_ajax_referer('wpp_feps_action', 'nonce');
+      die(json_encode(class_wpp_feps::email_lookup(sanitize_email($_REQUEST["user_email"]), $_REQUEST["user_password"])));
     });
 
     add_action( "wp_ajax_wpp_feps_save_property", array( __CLASS__, "ajax_feps_save_property" ) );
@@ -660,20 +662,30 @@ class class_wpp_feps {
    * @author korotkov@ud
    */
   static public function ajax_feps_image_delete() {
-    //** Get data from request */
-    $session  = (int)$_REQUEST['session'];
-    $filename = $_REQUEST['filename'];
+    if (!check_ajax_referer('wpp_feps_delete', 'nonce', false)) {
+      die(json_encode(array('success' => 0, 'error' => 'Security check failed.')));
+    }
 
-    //** File location */
+    $session  = absint($_REQUEST['session']);
+    $filename = sanitize_file_name(wp_basename($_REQUEST['filename']));
+
+    if (empty($session) || empty($filename)) {
+      die(json_encode(array('success' => 0, 'error' => 'Invalid parameters.')));
+    }
+
     $upload_dir = wp_upload_dir();
     $feps_session_files_dir = $upload_dir['basedir'] . '/feps_files/' . (string)$session . '/';
+    $filepath = realpath($feps_session_files_dir . $filename);
 
-    //** Try to delete file */
-    if ( unlink( $feps_session_files_dir.$filename ) )
-      die( json_encode( array('success' => 1) ) );
+    if (!$filepath || strpos($filepath, realpath($feps_session_files_dir)) !== 0) {
+      die(json_encode(array('success' => 0, 'error' => 'Invalid file path.')));
+    }
 
-    //** success - 0 if not deleted */
-    die( json_encode( array('success' => 0) ) );
+    if (unlink($filepath)) {
+      die(json_encode(array('success' => 1)));
+    }
+
+    die(json_encode(array('success' => 0)));
   }
 
   /**
@@ -2321,8 +2333,16 @@ class class_wpp_feps {
    */
   static public function ajax_feps_image_upload() {
 
-    $file_name = $_REQUEST['qqfile'];
-    $this_session = $_REQUEST['this_session'];
+    if (!check_ajax_referer('wpp_feps_upload', 'nonce', false)) {
+      die(json_encode(array('error' => 'Security check failed.')));
+    }
+
+    $file_name = sanitize_file_name(wp_basename($_REQUEST['qqfile']));
+    $this_session = absint($_REQUEST['this_session']);
+
+    if (empty($file_name) || empty($this_session)) {
+      die(json_encode(array('error' => 'Invalid parameters.')));
+    }
 
     $upload_dir = wp_upload_dir();
     $feps_files_dir = $upload_dir['basedir'] . '/feps_files';
@@ -4859,7 +4879,8 @@ function ajax_user_login(){
     return;
   }
 
-  // The data from the form fields and check
+  check_ajax_referer('wpp_feps_login', 'nonce');
+
   $info = array();
   $info['user_login'] = $_POST['username'];
   $info['user_password'] = $_POST['password'];

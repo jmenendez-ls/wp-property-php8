@@ -106,7 +106,7 @@ namespace UsabilityDynamics\WPP {
           foreach( $_targets as $_target ) {
             $_target = trim( $_target );
 
-            $_alias_value = $this->get_alias_value( $_target, $property[ 'ID' ] );
+            $_alias_value = $this->get_alias_value( $property[ 'ID' ], $_target );
             if( is_array( $_alias_value ) ) {
               $list = true;
             }
@@ -216,7 +216,7 @@ namespace UsabilityDynamics\WPP {
        * @param int $post_id
        * @return mixed|void
        */
-      public function get_alias_value( $target = false, $post_id ) {
+      public function get_alias_value( $post_id, $target = false ) {
         global $wpdb;
 
         $value = null;
