@@ -194,6 +194,7 @@ wpp.xmli = jQuery.extend({
 
       var params = {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         wpp_action: 'execute_schedule_import',
         preview: 'true',
         data: jQuery( "#wpp_property_import_setup" ).serialize()
@@ -256,6 +257,7 @@ wpp.xmli = jQuery.extend({
 
       var params = {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         wpp_action: 'execute_schedule_import',
         raw_preview: 'true',
         data: jQuery( "#wpp_property_import_setup" ).serialize()
@@ -332,6 +334,7 @@ wpp.xmli = jQuery.extend({
 
       var params = {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         wpp_action: 'save_new_schedule',
         data: jQuery( "#wpp_property_import_setup" ).serialize()
       }
@@ -369,6 +372,7 @@ wpp.xmli = jQuery.extend({
 
       jQuery.post( wpp.instance.ajax_url, {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         wpp_action: 'update_schedule',
         schedule_id: schedule_id,
         data: jQuery( "#wpp_property_import_setup" ).serialize()
@@ -474,6 +478,7 @@ wpp.xmli = jQuery.extend({
 
         jQuery.post( wpp.instance.ajax_url, {
           action: 'wpp_property_import_handler',
+          nonce: wpp_import_vars.nonce,
           schedule_id: schedule_id,
           wpp_action: 'delete_all_schedule_properties'
         }, function ( result ) {
@@ -501,6 +506,7 @@ wpp.xmli = jQuery.extend({
 
       jQuery.post( wpp.instance.ajax_url, {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         schedule_id: schedule_id,
         wpp_action: 'delete_schedule'
       }, function ( result ) {
@@ -945,6 +951,7 @@ wpp.xmli = jQuery.extend({
 
     var params = {
       action: 'wpp_property_import_handler',
+      nonce: wpp_import_vars.nonce,
       wpp_action: 'execute_schedule_import',
       wpp_action_type: 'source_evaluation',
       source_type: jQuery( "#wpp_property_import_source_type option:selected" ).val(),
@@ -1236,6 +1243,7 @@ wpp.xmli = jQuery.extend({
 
     params = {
       action: 'wpp_property_import_handler',
+      nonce: wpp_import_vars.nonce,
       wpp_action: 'add_edit_schedule'
     }
 

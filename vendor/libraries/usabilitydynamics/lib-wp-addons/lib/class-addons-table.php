@@ -124,7 +124,7 @@ namespace UsabilityDynamics\WPA {
       public function column_product_status ( $item ) {
 
         $response = '<ul>' . "\n";
-        $response .= '<li><select name="products['.$item['slug'].']"><option value="0">'.esc_attr( __( 'Disabled', $this->domain ) ).'</option><option value="1" '.($item['active'] == 1 ? "selected" : "").'>'.esc_attr( __( 'Enabled', $this->domain ) ).'</option></select><li>' . "\n";
+        $response .= '<li><select name="products['.$item['slug'].']"><option value="0">'.esc_attr( __( 'Disabled', $this->domain ) ).'</option><option value="1" '.((!empty($item['active']) && $item['active'] == 1) ? "selected" : "").'>'.esc_attr( __( 'Enabled', $this->domain ) ).'</option></select><li>' . "\n";
         $response .= '</ul>' . "\n";
 
         return $response;

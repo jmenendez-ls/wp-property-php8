@@ -168,7 +168,7 @@ class class_wpp_property_import {
       //return $schedule;
     }
 
-    if( $schedule['alt_cron_enabled'] === 'true' ) {
+    if( ( $schedule['alt_cron_enabled'] ?? '' ) === 'true' ) {
 
     }
 
@@ -191,7 +191,9 @@ class class_wpp_property_import {
 
     $_parsed_response = json_decode(wp_remote_retrieve_body($_response));
 
-    $schedule['schedule'] = array( 'uuid' => $_parsed_response->uuid, 'id' => $_parsed_response->id );
+    if( $_parsed_response ) {
+      $schedule['schedule'] = array( 'uuid' => $_parsed_response->uuid, 'id' => $_parsed_response->id );
+    }
 
     return $schedule;
   }
@@ -861,7 +863,7 @@ class class_wpp_property_import {
 
     class_wpp_property_import::maybe_echo_log( sprintf( __( 'Starting ' . ( defined( 'WP_CLI' ) && WP_CLI ? 'CLI' : 'Browser' ) . '-Initiated Import: %1s. Using XML Importer %2s and WP-Property %3s.', ud_get_wpp_importer()->domain ), $import_data[ 'name' ], WPP_XMLI_Version, WPP_Version ) );
     self::maybe_echo_memory_usage( sprintf( __( 'on process start. Memory limit: %s. Before %s', ud_get_wpp_importer()->domain ), $memory_limit, 'admin_ajax_handler()' ), $sch_id );
-    class_wpp_property_import::admin_ajax_handler();
+    class_wpp_property_import::admin_ajax_handler( true );
 
     $last_time_entry = class_wpp_property_import::maybe_echo_log( "Total run time %s seconds.", true, true, true );
 
@@ -1265,6 +1267,9 @@ class class_wpp_property_import {
     global $wp_properties, $wpdb;
 
     wp_enqueue_script( 'wpp-settings-xmli', ud_get_wpp_importer()->path( 'static/scripts/wpp.admin.settings.xmli.js' ), array( 'jquery', 'wp-property-global' ), ud_get_wpp_importer()->version );
+    wp_localize_script( 'wpp-settings-xmli', 'wpp_import_vars', array(
+      'nonce' => wp_create_nonce( 'wpp_import_action' ),
+    ));
 
     //** Check for orphan images */
     $orphan_attachments = count( class_wpp_property_import::get_orphan_attachments() );
@@ -1406,6 +1411,9 @@ class class_wpp_property_import {
       wp_enqueue_script( 'wp-property-backend-global' );
       wp_enqueue_script( 'wp-property-global' );
       wp_enqueue_script( 'wpp-xmli' );
+      wp_localize_script( 'wpp-xmli', 'wpp_import_vars', array(
+        'nonce' => wp_create_nonce( 'wpp_import_action' ),
+      ));
 
       wp_enqueue_style( 'wpp-xmli', ud_get_wpp_importer()->path( 'static/styles/style.css' ), array(), ud_get_wpp_importer()->version );
     }
@@ -1486,7 +1494,7 @@ class class_wpp_property_import {
         }
 
         class_wpp_property_import::maybe_echo_log( sprintf( __( 'Starting Cron-Initiated Import: %1s. Using XML Importer %2s and WP-Property %3s.', ud_get_wpp_importer()->domain ), $sch[ 'name' ], WPP_XMLI_Version, WPP_Version ) );
-        class_wpp_property_import::admin_ajax_handler();
+        class_wpp_property_import::admin_ajax_handler( true );
         $last_time_entry = class_wpp_property_import::maybe_echo_log( "Total run time %s seconds.", true, true, true );
 
         if( !WPP_DEBUG_MODE ) {
@@ -2047,7 +2055,8 @@ class class_wpp_property_import {
 
         //** Stop here if we are only evaluating, and return tags */
         if( isset( $action_type ) && $action_type == 'source_evaluation' ) {
-          $result[ 'common_tag_name' ] = $common_tag_name;
+          $root_element_parts = explode( '/', $data[ 'wpp_property_import' ][ 'root_element' ] );
+          $result[ 'common_tag_name' ] = end( $root_element_parts );
           $result[ 'success' ] = 'true';
           break; /* break throws the logic to the end of the $wpp_action function, and returns all $result data */
         }
@@ -2305,7 +2314,7 @@ class class_wpp_property_import {
           } elseif( isset( $schedule_settings[ 'remove_all_from_this_source' ] ) && $schedule_settings[ 'remove_all_from_this_source' ] == 'on' ) {
             //** Remove all objects that originated from this feed */
             $result = class_wpp_property_import::delete_feed_properties( $schedule_id, $schedule_settings );
-            if( $result[ 'deleted_count' ] > 0 ) {
+            if( ( $result[ 'deleted_count' ] ?? 0 ) > 0 ) {
               $wpp_import_result_stats[ ] = sprintf( __( 'Deleted all ( %1s ) properties that originated from this feed.', ud_get_wpp_importer()->domain ), $result[ 'deleted_count' ] );
               class_wpp_property_import::maybe_echo_log( sprintf( __( 'Deleted all ( %1s ) properties that originated from this feed.', ud_get_wpp_importer()->domain ), $result[ 'deleted_count' ] ) );
             } elseif( $result[ 'total_found' ] == 0 ) {

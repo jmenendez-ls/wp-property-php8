@@ -127,7 +127,7 @@ namespace UsabilityDynamics\SAAS_UTIL {
 
           $api_body = json_decode( wp_remote_retrieve_body( $response ) );
 
-          if( isset( $api_body ) && $api_body->ok && $api_body->data->ud_site_secret_token === $this->secret_token ) {
+          if( isset( $api_body ) && !empty( $api_body->ok ) && isset( $api_body->data ) && $api_body->data->ud_site_secret_token === $this->secret_token ) {
 
             if( isset( $api_body->data->ud_site_id ) ) {
               update_site_option( 'ud_site_id', $api_body->data->ud_site_id );

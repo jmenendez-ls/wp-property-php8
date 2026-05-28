@@ -1366,7 +1366,9 @@ class WPP_Core {
     $l10n = array();
     //** Include the list of translations */
     $l10n_dir = ud_get_wp_property()->path( 'l10n.php', 'dir' );
-    include( $l10n_dir );
+    if ( file_exists( $l10n_dir ) ) {
+      include( $l10n_dir );
+    }
     /** All additional localizations must be added using the filter below. */
     $l10n = apply_filters( 'wpp::js::localization', $l10n );
     foreach( (array)$l10n as $key => $value ) {

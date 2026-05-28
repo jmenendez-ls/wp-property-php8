@@ -618,7 +618,7 @@ namespace UsabilityDynamics\WPP {
           $_wpp_terms['taxonomies'] = $settings['taxonomies'];
         }
 
-        foreach( (array) $settings['taxonomies'] as $_taxonomy => $_taxonomy_data ) {
+        foreach( (array) ( $settings['taxonomies'] ?? array() ) as $_taxonomy => $_taxonomy_data ) {
 
           // Removed legacy/unused field(s)
           if( isset( $_taxonomy_data['wpp_hidden'] )  && !$_taxonomy_data['wpp_hidden'] ) {

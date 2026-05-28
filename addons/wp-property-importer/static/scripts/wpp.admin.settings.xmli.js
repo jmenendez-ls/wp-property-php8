@@ -24,6 +24,7 @@ jQuery.extend( wpp.ui, { xmli: {
 
       jQuery.post( wpp.instance.ajax_url, {
         action: 'wpp_property_import_handler',
+        nonce: wpp_import_vars.nonce,
         wpp_action: 'delete_all_orphan_attachments'
       }, function ( result ) {
         if ( result && result.success ) {

@@ -3357,7 +3357,7 @@ class WPP_F extends UsabilityDynamics\Utility
   {
     global $post, $property;
 
-    if ($post->post_type != 'property' || empty($property)) {
+    if (!$post || $post->post_type != 'property' || empty($property)) {
       return $post;
     }
 

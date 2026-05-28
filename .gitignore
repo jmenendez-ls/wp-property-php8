@@ -6,6 +6,7 @@ npm-debug.log
 wp-test-config.php
 composer.lock
 ./cache
+build/
 
 .git
 .svn

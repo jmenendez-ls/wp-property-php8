@@ -271,7 +271,7 @@ namespace UsabilityDynamics\WPP {
 
         if( isset( $wp_properties[ 'taxonomies' ][ $attribute ] ) ) {
           $return[ 'label' ]        = $wp_properties[ 'taxonomies' ][ $attribute ]['label'];
-          $return[ 'readonly' ]        = $wp_properties[ 'taxonomies' ][ $attribute ]['readonly'];
+          $return[ 'readonly' ]        = $wp_properties[ 'taxonomies' ][ $attribute ]['readonly'] ?? false;
           $return[ 'storage_type' ] = 'taxonomy';
           $categories = get_terms( $attribute, array('hide_empty' => 0, 'fields' => 'names') );
           if( is_wp_error( $categories ) ) {

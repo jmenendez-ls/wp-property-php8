@@ -226,7 +226,7 @@ $_attributes = WPP_F::get_total_attribute_array();
     <label for="wpp_property_import_rets_version"><?php _e( 'RETS Version.', ud_get_wpp_importer()->domain ); ?> <span class="description"><?php _e( 'Version is set by your RETS provider.', ud_get_wpp_importer()->domain ); ?></span></label>
   </li>
   <li class="wpp_i_source_specific wpp_i_advanced_source_settings wpp_property_import_rets_options"  wpp_i_source_type="rets">
-    <input type="checkbox" id="wpp_rets_use_post_method" name="wpp_property_import[rets_use_post_method]" value="true" <?php echo checked( 'true', $settings[ 'rets_use_post_method' ] ); ?>/>
+    <input type="checkbox" id="wpp_rets_use_post_method" name="wpp_property_import[rets_use_post_method]" value="true" <?php echo checked( 'true', $settings[ 'rets_use_post_method' ] ?? '' ); ?>/>
     <label for="wpp_rets_use_post_method"><?php _e( 'Use POST method for RETS provider.', ud_get_wpp_importer()->domain ); ?> <span class="description"><?php _e( 'Certain providers require the POST method be used when making requests.', ud_get_wpp_importer()->domain ); ?></span></label>
   </li>
 
