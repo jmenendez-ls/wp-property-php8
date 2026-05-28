@@ -21,12 +21,10 @@ Both scripts produce identical output: a file named `build/wp-property-<version>
 
 | Requirement | Details |
 |-------------|---------|
-| **PHP 8.0+** | Required by the plugin itself |
-| **Composer 2.x** | Used to install production PHP dependencies into `vendor/libraries/`. Install from https://getcomposer.org |
 | **zip** (bash) or **Compress-Archive** (PowerShell) | Standard on most systems. On Ubuntu/Debian: `sudo apt install zip` |
 | **Git** | For version control and tagging releases |
 
-**Not required:** Node.js, npm, Grunt, or any JavaScript build tooling. The legacy `build.sh` / `gruntfile.js` / `makefile` / `package.json` pipeline has been retired.
+**Not required:** Node.js, npm, Grunt, Composer, or any JavaScript build tooling. The legacy `build.sh` / `gruntfile.js` / `makefile` / `package.json` pipeline has been retired. All PHP vendor dependencies are committed directly to the repository (see [Vendor Dependencies](#vendor-dependencies) below).
 
 ---
 
@@ -90,10 +88,9 @@ If you omit the version argument, both scripts default to `3.0.0`.
 The script will:
 
 1. **Clean** any previous `build/` directory
-2. **Run `composer install --no-dev`** to ensure only production dependencies are present in `vendor/libraries/`
-3. **Copy** all production files into `build/wp-property/`
-4. **Strip** development artifacts (LESS sources, JS sources, test directories, editor snippets, cache directories, VCS metadata)
-5. **Create** `build/wp-property-<version>.zip`
+2. **Copy** all production files into `build/wp-property/` (including the committed `vendor/` directory)
+3. **Strip** development artifacts (LESS sources, JS sources, test directories, editor snippets, cache directories, VCS metadata)
+4. **Create** `build/wp-property-<version>.zip`
 
 When complete, you'll see output like:
 
@@ -163,9 +160,11 @@ wp-property/
 │   ├── languages/            # .po/.mo translation files
 │   └── splashes/             # Splash screen assets
 └── vendor/
-    ├── autoload.php          # Composer autoloader
-    ├── composer/             # Composer autoload internals
-    ├── libraries/            # Composer-managed PHP libraries (UD libs, ChromePHP)
+    ├── libraries/
+    │   ├── autoload.php      # Composer autoloader
+    │   ├── composer/         # Composer autoload internals
+    │   ├── usabilitydynamics/ # UD libraries (lib-ui, lib-utility, lib-settings, etc.)
+    │   └── ccampbell/        # ChromePHP
     └── plugins/              # Bundled vendor plugins (ElasticPress, wp-rets-client, wp-tax-post-binding)
 ```
 
@@ -198,20 +197,27 @@ The build scripts automatically strip these from the build copy:
 
 ---
 
-## Troubleshooting
+## Vendor Dependencies
 
-### `composer` is not found
+All PHP dependencies are **committed directly** to the repository under `vendor/libraries/` and `vendor/plugins/`. The build scripts copy this directory as-is — no `composer install` step is needed or performed.
 
-Install Composer globally: https://getcomposer.org/download/
+This is necessary because the original packages were hosted on a private Composer repository (`repository.usabilitydynamics.com`) that is no longer available. The 9 UsabilityDynamics libraries, ChromePHP, and the 3 bundled plugins are not published on Packagist. The committed `vendor/` directory is the source of truth.
 
-On most systems:
+The `composer.json` file is **not modified** — it is still read at runtime by several PHP classes (lib-ud-api-client, lib-wp-bootstrap) that parse its `extra.featureFlags`, `extra.schemas`, and `require` sections for plugin configuration.
+
+### Regenerating the Autoloader
+
+If you add or remove PHP class files in `lib/classes/`, the Composer autoloader classmap needs to be regenerated. This command does **not** contact any remote repository:
 
 ```bash
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+composer dump-autoload --optimize
 ```
 
-If Composer is unavailable, the build script will still run but will copy the `vendor/` directory as-is (with whatever dependencies were last installed). Make sure you've previously run `composer install --no-dev` in this case.
+This updates `vendor/libraries/composer/autoload_classmap.php` to include the new classes. Commit the result.
+
+---
+
+## Troubleshooting
 
 ### `zip` command not found (Linux)
 
@@ -241,13 +247,6 @@ Typical production ZIP size is 8-12 MB. If it's significantly larger, check that
 - `static/cache/` and `static/codex/` were properly stripped
 - No stale `build/` directories from previous runs leaked in
 
-### Composer fails to resolve dependencies
-
-The `composer.json` uses a private UD repository (`https://repository.usabilitydynamics.com`). If this repository is unreachable:
-
-1. Check if you have the required authentication configured in `~/.composer/auth.json`
-2. If the repository is permanently down, all vendor libraries are already committed to the repo — the `composer install --no-dev` step can be skipped as long as `vendor/libraries/` is up to date
-
 ---
 
 ## Modifying CSS or JS Assets in the Future
@@ -276,13 +275,12 @@ Both `build-zip.sh` and `build-zip.ps1` follow the same logic:
 
 ```
 1. rm -rf build/
-2. composer install --no-dev --optimize-autoloader
-3. cp production files → build/wp-property/
-4. rm -rf dev artifacts from build/wp-property/
-5. zip build/wp-property/ → build/wp-property-<version>.zip
+2. cp production files → build/wp-property/
+3. rm -rf dev artifacts from build/wp-property/
+4. zip build/wp-property/ → build/wp-property-<version>.zip
 ```
 
-The scripts are intentionally simple — no configuration files, no environment variables, no external services. They can be run locally or in any CI environment that has PHP + Composer + zip installed.
+The scripts are intentionally simple — no configuration files, no environment variables, no external services. They can be run locally or in any CI environment that has `zip` installed.
 
 ### Adapting for CI (GitHub Actions example)
 
@@ -298,11 +296,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer:v2
-
       - name: Build ZIP
         run: |
           chmod +x build-zip.sh
@@ -314,4 +307,4 @@ jobs:
           files: build/wp-property-*.zip
 ```
 
-This workflow triggers on version tags (e.g., `v3.1.0`), builds the ZIP, and attaches it to the GitHub Release automatically.
+This workflow triggers on version tags (e.g., `v3.1.0`), builds the ZIP, and attaches it to the GitHub Release automatically. No PHP or Composer setup is needed since all vendor dependencies are committed.

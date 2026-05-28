@@ -16,16 +16,10 @@ Write-Host "==> Building $SLUG v$Version"
 # 1. Clean previous build
 if (Test-Path $BUILD_ROOT) { Remove-Item -Recurse -Force $BUILD_ROOT }
 
-# 2. Composer production install (vendor-dir is vendor/libraries per composer.json)
-if (Get-Command composer -ErrorAction SilentlyContinue) {
-    Write-Host "==> Running composer install --no-dev"
-    composer install --no-dev --no-interaction --optimize-autoloader
-} else {
-    Write-Host "WARNING: composer not found - skipping composer install."
-    Write-Host "         The vendor/ directory will be copied as-is."
-}
-
-# 3. Copy production files
+# 2. Copy production files
+# Note: vendor/ is committed directly — the private Composer repository
+# (repository.usabilitydynamics.com) is no longer available, so composer install
+# cannot resolve dependencies. All libraries are already in vendor/libraries/.
 Write-Host "==> Copying production files"
 
 $dirs = @("addons", "bin", "lib", "static", "vendor")
@@ -47,7 +41,7 @@ foreach ($d in $dirs) {
     }
 }
 
-# 4. Strip dev/source artifacts from the build copy
+# 3. Strip dev/source artifacts from the build copy
 Write-Host "==> Stripping dev/source artifacts"
 
 $removeList = @(
@@ -98,7 +92,7 @@ if (Test-Path "$BUILD_DIR\vendor\plugins") {
         Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# 5. Create ZIP
+# 4. Create ZIP
 Write-Host "==> Creating ZIP archive"
 Compress-Archive -Path $BUILD_DIR -DestinationPath "$BUILD_ROOT\$ZIP_NAME" -Force
 $zipSize = [math]::Round((Get-Item "$BUILD_ROOT\$ZIP_NAME").Length / 1MB, 2)

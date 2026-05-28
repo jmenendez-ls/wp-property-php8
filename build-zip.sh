@@ -19,16 +19,10 @@ echo "==> Building $SLUG v$VERSION"
 rm -rf "$BUILD_ROOT"
 mkdir -p "$BUILD_DIR"
 
-# 2. Composer production install (vendor-dir is vendor/libraries per composer.json)
-if command -v composer &>/dev/null; then
-  echo "==> Running composer install --no-dev"
-  composer install --no-dev --no-interaction --optimize-autoloader
-else
-  echo "WARNING: composer not found — skipping composer install."
-  echo "         The vendor/ directory will be copied as-is."
-fi
-
-# 3. Copy production files
+# 2. Copy production files
+# Note: vendor/ is committed directly — the private Composer repository
+# (repository.usabilitydynamics.com) is no longer available, so composer install
+# cannot resolve dependencies. All libraries are already in vendor/libraries/.
 echo "==> Copying production files"
 for file in wp-property.php composer.json readme.txt readme.md; do
   if [ -f "$file" ]; then
@@ -46,7 +40,7 @@ for dir in addons bin lib static vendor; do
   fi
 done
 
-# 4. Strip dev/source artifacts from the build copy
+# 3. Strip dev/source artifacts from the build copy
 echo "==> Stripping dev/source artifacts"
 
 # Core static dev artifacts
@@ -90,7 +84,7 @@ find "$BUILD_DIR/vendor/plugins" -type d -name src \
   \( -path "*/scripts/src" -o -path "*/styles/src" \) \
   -exec rm -rf {} + 2>/dev/null || true
 
-# 5. Create ZIP
+# 4. Create ZIP
 echo "==> Creating ZIP archive"
 cd "$BUILD_ROOT"
 zip -qr "$ZIP_NAME" "$SLUG/"
