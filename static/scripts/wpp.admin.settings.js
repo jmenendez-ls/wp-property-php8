@@ -189,6 +189,7 @@ jQuery.extend( wpp = wpp || {}, {
                 url: wpp.instance.ajax_url,
                 data: {
                   action: 'wpp_save_settings',
+                  nonce: wpp.instance.nonce,
                   data: data
                 },
                 success: onSaveSettingsResponse,
@@ -246,7 +247,8 @@ jQuery.extend( wpp = wpp || {}, {
           } else {
             $this.attr( 'disabled', 'disabled' );
             jQuery.get( wpp.instance.ajax_url, {
-              action: 'wpp_ajax_print_wp_properties'
+              action: 'wpp_ajax_print_wp_properties',
+              nonce: wpp.instance.nonce
             }, function ( data ) {
 
               $cancelBtn.show();
@@ -280,7 +282,8 @@ jQuery.extend( wpp = wpp || {}, {
           var _this = jQuery( this );
           jQuery( '.clear_cache_status' ).remove();
           jQuery.post( wpp.instance.ajax_url, {
-            action: 'wpp_ajax_generate_is_remote_meta'
+            action: 'wpp_ajax_generate_is_remote_meta',
+            nonce: wpp.instance.nonce
           }, function ( data ) {
             message = "<div class='clear_cache_status updated fade'><p>" + data + "</p></div>";
             jQuery( message ).insertAfter( _this );
@@ -296,7 +299,8 @@ jQuery.extend( wpp = wpp || {}, {
           jQuery( '.address_revalidation_status' ).remove();
 
           jQuery.post( wpp.instance.ajax_url, {
-            action: 'wpp_ajax_create_settings_backup'
+            action: 'wpp_ajax_create_settings_backup',
+            nonce: wpp.instance.nonce
           }, function ( data ) {
             jQuery( "#wpp_ajax_create_settings_backup" ).val( 'Create Another Backup' );
             jQuery( "#wpp_ajax_create_settings_backup" ).attr( 'disabled', false );
@@ -311,7 +315,8 @@ jQuery.extend( wpp = wpp || {}, {
           jQuery( '.address_revalidation_status' ).remove();
 
           jQuery.post( wpp.instance.ajax_url, {
-            action: 'wpp_ajax_revalidate_all_addresses'
+            action: 'wpp_ajax_revalidate_all_addresses',
+            nonce: wpp.instance.nonce
           }, function ( data ) {
             jQuery( "#wpp_ajax_revalidate_all_addresses" ).val( 'Revalidate again' );
             jQuery( "#wpp_ajax_revalidate_all_addresses" ).attr( 'disabled', false );
@@ -349,6 +354,7 @@ jQuery.extend( wpp = wpp || {}, {
           }
           jQuery.post( wpp.instance.ajax_url, {
             action: 'wpp_ajax_max_set_property_type',
+            nonce: wpp.instance.nonce,
             property_type: jQuery( "#wpp_ajax_max_set_property_type_type" ).val()
           }, function ( data ) {
             jQuery( "#wpp_ajax_max_set_property_type_result" ).show();
@@ -363,6 +369,7 @@ jQuery.extend( wpp = wpp || {}, {
 
           jQuery.post( wpp.instance.ajax_url, {
             action: 'wpp_ajax_image_query',
+            nonce: wpp.instance.nonce,
             image_id: image_id
           }, function ( data ) {
             jQuery( "#wpp_ajax_image_result" ).show();
@@ -447,22 +454,7 @@ jQuery.extend( wpp = wpp || {}, {
           this.removeAttribute( 'wpp_attribute_group' );
 
           //* Remove background-color from the added row if it's set */
-          if( typeof jQuery.browser.msie != 'undefined' && (parseInt( jQuery.browser.version ) == 9) ) {
-            //* HACK FOR IE9 (it's just unset background color) peshkov@UD: */
-            setTimeout( function () {
-              var lr = jQuery( '#wpp_inquiry_attribute_fields tr.wpp_dynamic_table_row' ).last();
-              var bc = lr.css( 'background-color' );
-              lr.css( 'background-color', '' );
-              jQuery( document ).bind( 'mousemove', function () {
-                setTimeout( function () {
-                  lr.prev().css( 'background-color', bc );
-                }, 50 );
-                jQuery( document ).unbind( 'mousemove' );
-              } );
-            }, 50 );
-          } else {
-            jQuery( this ).css( 'background-color', '' );
-          }
+          jQuery( this ).css( 'background-color', '' );
 
           //* Stat to group functionality */
           jQuery( this ).find( '.wpp_attribute_group' ).wppGroups();

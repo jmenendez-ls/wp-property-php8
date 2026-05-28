@@ -161,11 +161,6 @@ jQuery.fn.wppGroups = function(opt) {
     var active_groups = jQuery('.wpp_inquiry_attribute_fields .wpp_dynamic_table_row.groups_active');
     active_groups.css('background-color', jQuery('input.wpp_input_colorpicker' , row).val());
 
-    //* HACK FOR IE7 */
-    if(typeof jQuery.browser.msie != 'undefined' && (parseInt(jQuery.browser.version) == 7)) {
-      active_groups.find('td').css('background-color', jQuery('input.wpp_input_colorpicker' , row).val());
-    }
-
     active_groups.attr('wpp_attribute_group' , row.attr('slug'));
     jQuery('input.wpp_group_slug' , active_groups).val(row.attr('slug'));
 
@@ -182,10 +177,6 @@ jQuery.fn.wppGroups = function(opt) {
   jQuery(document).on('click', opt.unassignButton, function(){
     var active_groups = jQuery('.wpp_inquiry_attribute_fields .wpp_dynamic_table_row.groups_active');
     jQuery(active_groups).css('background-color', '');
-    //* HACK FOR IE7 */
-    if(typeof jQuery.browser.msie != 'undefined' && (parseInt(jQuery.browser.version) == 7)) {
-      jQuery(active_groups).find('td').css('background-color', '');
-    }
 
     jQuery(active_groups).removeAttr('wpp_attribute_group');
     jQuery('input.wpp_group_slug' , active_groups).val('');
@@ -200,10 +191,6 @@ jQuery.fn.wppGroups = function(opt) {
     instance.each(function(i,e){
       if(s == jQuery(e).next().val()) {
         jQuery(e).parent().parent().css('background-color', cp.val());
-        //* HACK FOR IE7 */
-        if(typeof jQuery.browser.msie != 'undefined' && (parseInt(jQuery.browser.version) == 7)) {
-          jQuery(e).parent().parent().find('td').css('background-color', cp.val());
-        }
       }
     });
   });
@@ -225,10 +212,6 @@ jQuery.fn.wppGroups = function(opt) {
     instance.each(function(i,e){
       if(s == jQuery(e).next().val()) {
         jQuery(e).parent().parent().css('background-color', '');
-        //* HACK FOR IE7 */
-        if(typeof jQuery.browser.msie != 'undefined' && (parseInt(jQuery.browser.version) == 7)) {
-          jQuery(e).parent().parent().find('td').css('background-color', '');
-        }
         jQuery(e).val('');
         jQuery(e).next().val('');
       }
@@ -707,14 +690,14 @@ function wpp_call_function(functionName, context, args) {
  * @author Maxim Peshkov
  */
 function wpp_set_unique_ids(el, unique) {
-  if (typeof el == "undefined" || el.size() === 0) {
+  if (typeof el == "undefined" || el.length === 0) {
     return;
   }
 
   el.each(function(){
     var child = jQuery(this);
 
-    if (child.children().size() > 0) {
+    if (child.children().length > 0) {
       wpp_set_unique_ids(child.children(), unique);
     }
 

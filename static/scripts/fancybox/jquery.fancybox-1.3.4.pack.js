@@ -18,7 +18,7 @@
 ;(function (b) {
   var m, t, u, f, D, j, E, n, z, A, q = 0, e = {}, o = [], p = 0, d = {}, l = [], G = null, v = new Image,
     J = /\.(jpg|gif|png|bmp|jpeg)(.*)?$/i, W = /[^\.]\.(swf)\s*$/i, K, L = 1, y = 0, s = "", r, i, h = false,
-    B = b.extend(b("<div/>")[0], {prop: 0}), M = b.browser.msie && b.browser.version < 7 && !window.XMLHttpRequest,
+    B = b.extend(b("<div/>")[0], {prop: 0}), M = false,
     N = function () {
       t.hide();
       v.onerror = v.onload = null;
@@ -295,7 +295,7 @@
       d.hideOnOverlayClick && u.bind("click", b.fancybox.close);
       b(window).bind("resize.fb", b.fancybox.resize);
       d.centerOnScroll && b(window).bind("scroll.fb", b.fancybox.center);
-      if (d.type == "iframe") b('<iframe id="fancybox-frame" name="fancybox-frame' + (new Date).getTime() + '" frameborder="0" hspace="0" ' + (b.browser.msie ? 'allowtransparency="true""' : "") + ' scrolling="' + e.scrolling + '" src="' + d.href + '"></iframe>').appendTo(j);
+      if (d.type == "iframe") b('<iframe id="fancybox-frame" name="fancybox-frame' + (new Date).getTime() + '" frameborder="0" hspace="0" scrolling="' + e.scrolling + '" src="' + d.href + '"></iframe>').appendTo(j);
       f.show();
       h = false;
       b.fancybox.center();

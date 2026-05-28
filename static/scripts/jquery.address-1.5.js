@@ -199,7 +199,7 @@
                             _enable.call(this);
                             _unescape.call(this);
                         },
-                        body = $('body').ajaxComplete(complete);
+                        body = $(document).ajaxComplete(complete);
                     complete();
                     if (_opts.wrap) {
                         var wrap = $('body > *')
@@ -277,7 +277,7 @@
             _enable = function() {
                 var el, 
                     elements = $('a'), 
-                    length = elements.size(),
+                    length = elements.length,
                     delay = 1,
                     index = -1,
                     sel = '[rel*="address:"]',
@@ -339,10 +339,9 @@
                 strict: TRUE,
                 wrap: FALSE
             },
-            _browser = $.browser, 
-            _version = parseFloat(_browser.version),
+            _version = 0,
             _msie = !$.support.opacity,
-            _webkit = _browser.webkit || _browser.safari,
+            _webkit = /webkit/i.test(navigator.userAgent),
             _t = _window(),
             _d = _t.document,
             _h = _t.history, 

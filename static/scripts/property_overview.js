@@ -406,7 +406,7 @@
           properties_height(property_overview_box);
         } else {
           p_wrapper.html(content);
-          jQuery('img', property_overview_box).load(function () {
+          jQuery('img', property_overview_box).on('load', function () {
             properties_height(property_overview_box);
           });
         }
@@ -670,10 +670,10 @@
 
   };
 
-  jQuery('img', property_overview_box).load(function () {
+  jQuery('img', property_overview_box).on('load', function () {
     properties_height(property_overview_box);
   });
-  jQuery(window).load(function () {
+  jQuery(window).on('load', function () {
     properties_height(property_overview_box);
     properties_width();
 

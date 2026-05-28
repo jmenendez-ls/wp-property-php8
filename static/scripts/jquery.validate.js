@@ -872,7 +872,7 @@ $.extend($.validator, {
 			switch( element.nodeName.toLowerCase() ) {
 			case 'select':
 				var options = $("option:selected", element);
-				return options.length > 0 && ( element.type == "select-multiple" || ($.browser.msie && !(options[0].attributes['value'].specified) ? options[0].text : options[0].value).length > 0);
+				return options.length > 0 && ( element.type == "select-multiple" || (options[0].value).length > 0);
 			case 'input':
 				if ( this.checkable(element) )
 					return this.getLength(value, element) > 0;
@@ -1081,11 +1081,9 @@ $.extend($.validator, {
 	}, function( original, fix ){
 		$.event.special[fix] = {
 			setup:function() {
-				if ( $.browser.msie ) return false;
 				this.addEventListener( original, $.event.special[fix].handler, true );
 			},
 			teardown:function() {
-				if ( $.browser.msie ) return false;
 				this.removeEventListener( original,
 				$.event.special[fix].handler, true );
 			},

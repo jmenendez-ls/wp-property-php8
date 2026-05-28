@@ -10,7 +10,7 @@ jQuery(document).ready(function () {
   });
 });
 
-jQuery(window).load(function () {
+jQuery(window).on('load', function () {
   jQuery('body .wpp_shortcode_search_form').each(function () {
     if (jQuery(this).width() < 800) {
       jQuery(this).addClass('wpp_search_one_column');

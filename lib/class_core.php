@@ -1449,6 +1449,7 @@ class WPP_Core {
       'user_logged_in' => is_user_logged_in() ? 'true' : 'false',
       'is_permalink' => ( get_option( 'permalink_structure' ) !== '' ? true : false ),
       'settings' => ud_get_wp_property()->get(),
+      'nonce' => is_admin() ? wp_create_nonce( 'wpp_admin_action' ) : '',
     );
 
     if( isset( $data[ 'request' ][ 'wp_customize' ] ) && $data[ 'request' ][ 'wp_customize' ] == 'on' ) {
