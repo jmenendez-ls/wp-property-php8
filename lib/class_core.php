@@ -318,9 +318,13 @@ class WPP_Core {
     wp_register_script( 'wpp-localization', ud_get_wp_property()->path( 'static/scripts/l10n.js', 'url' ), array(), WPP_Version );
     wp_localize_script( 'wpp-localization', 'wpp_l10n', $this->get_l10n_data() );
 
+    $jquery_legacy_compat_path = WPP_Path . 'static/scripts/jquery.legacy-compat.js';
+    $jquery_legacy_compat_ver  = WPP_Version . ( file_exists( $jquery_legacy_compat_path ) ? '.' . filemtime( $jquery_legacy_compat_path ) : '' );
+    wp_register_script( 'wpp-jquery-legacy-compat', WPP_URL . 'scripts/jquery.legacy-compat.js', array( 'jquery' ), $jquery_legacy_compat_ver );
+
     // wp_register_script( 'wpp-jquery-fancybox', WPP_URL . 'scripts/fancybox.2.1.5/jquery.fancybox.pack.js', array( 'jquery', 'wpp-localization' ), '2.1.5' );
     if(isset($wp_properties['configuration']['using_fancybox']) && $wp_properties['configuration']['using_fancybox'] == 'false' && !is_admin()) {
-      wp_register_script('wpp-jquery-fancybox', WPP_URL . 'scripts/fancybox/jquery.fancybox-1.3.4.pack.js', array('jquery', 'wpp-localization', 'jquery-migrate'), '1.7.3');
+      wp_register_script('wpp-jquery-fancybox', WPP_URL . 'scripts/fancybox/jquery.fancybox-1.3.4.pack.js', array('jquery', 'wpp-jquery-legacy-compat', 'wpp-localization', 'jquery-migrate'), '1.7.3');
     }
     wp_register_script( 'wpp-jquery-swiper', WPP_URL . 'scripts/swiper.jquery.min.js', array( 'jquery' ), '1.7.3' );
 
@@ -359,8 +363,14 @@ class WPP_Core {
     wp_register_script( 'wpp-md5', WPP_URL . 'scripts/md5.js', array( 'wpp-localization' ), WPP_Version );
     wp_register_script( 'wpp-jquery-gmaps', WPP_URL . 'scripts/jquery.ui.map.min.js', array( 'google-maps', 'jquery-ui-core', 'jquery-ui-widget', 'wpp-localization' ) );
     wp_register_script( 'wpp-jquery-nivo-slider', WPP_URL . 'scripts/jquery.nivo.slider.pack.js', array( 'jquery', 'wpp-localization' ) );
-    wp_register_script( 'wpp-jquery-address', WPP_URL . 'scripts/jquery.address-1.5.js', array( 'jquery', 'wpp-localization', 'jquery-migrate' ) );
-    wp_register_script( 'wpp-jquery-scrollTo', WPP_URL . 'scripts/jquery.scrollTo-min.js', array( 'jquery', 'wpp-localization' ) );
+
+    $jquery_address_path = WPP_Path . 'static/scripts/jquery.address-1.5.js';
+    $jquery_address_ver    = WPP_Version . ( file_exists( $jquery_address_path ) ? '.' . filemtime( $jquery_address_path ) : '' );
+    wp_register_script( 'wpp-jquery-address', WPP_URL . 'scripts/jquery.address-1.5.js', array( 'jquery', 'wpp-jquery-legacy-compat', 'wpp-localization', 'jquery-migrate' ), $jquery_address_ver );
+
+    $jquery_scrollto_path = WPP_Path . 'static/scripts/jquery.scrollTo-min.js';
+    $jquery_scrollto_ver  = WPP_Version . ( file_exists( $jquery_scrollto_path ) ? '.' . filemtime( $jquery_scrollto_path ) : '' );
+    wp_register_script( 'wpp-jquery-scrollTo', WPP_URL . 'scripts/jquery.scrollTo-min.js', array( 'jquery', 'wpp-jquery-legacy-compat', 'wpp-localization' ), $jquery_scrollto_ver );
     wp_register_script( 'wpp-jquery-validate', WPP_URL . 'scripts/jquery.validate.js', array( 'jquery', 'wpp-localization' ) );
     wp_register_script( 'wpp-jquery-number-format', WPP_URL . 'scripts/jquery.number.format.js', array( 'jquery', 'wpp-localization' ) );
     wp_register_script( 'wp-property-galleria', WPP_URL . 'scripts/galleria/galleria-1.2.5.js', array( 'jquery', 'wpp-localization' ) );

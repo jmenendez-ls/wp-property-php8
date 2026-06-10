@@ -340,7 +340,8 @@
                 wrap: FALSE
             },
             _version = 0,
-            _msie = !$.support.opacity,
+            // $.support.opacity was removed in jQuery 3; detect IE via user agent instead.
+            _msie = /msie|trident/i.test(navigator.userAgent),
             _webkit = /webkit/i.test(navigator.userAgent),
             _t = _window(),
             _d = _t.document,
