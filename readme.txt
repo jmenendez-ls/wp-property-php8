@@ -4,7 +4,7 @@ Donate link: http://usabilitydynamics.com/product/wp-property/
 Tags: property management, real estate, listings, properties, property, wp-property, real estate cms, wordpress real estate, listings, estate, MLS, IDX, RETS, XML Import
 Requires at least: 4.0
 Tested up to: 6.7
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 Requires PHP: 8.0
 
 == Description ==
@@ -208,6 +208,12 @@ If you submit a popular idea on UserVoice, we WILL integrate it sooner or later.
 
 == Upgrade Notice ==
 
+= Version 3.0.1 =
+* Fixes WordPress 6.7+ _doing_it_wrong() notices when the `wpp` text domain was loaded before `init`. Schema localization, settings attribute descriptions, and the licensing API client default product name now defer translation until after `init`, with English fallbacks and schema cache refresh where needed.
+
+= Version 3.0.0 =
+* Major release adding full compatibility with PHP 8.0 and later (through 8.3), with a minimum PHP requirement of 8.0.
+
 = Version 2.4.0 =
 * Final release. No more updates.
 
@@ -227,6 +233,14 @@ If you submit a popular idea on UserVoice, we WILL integrate it sooner or later.
 * Security fixes
 
 == Changelog ==
+
+= 3.0.1 =
+* Defer `wpp` translations in `get_localization()` until after `init`; clear cached composer schema on `init` so localized labels rebuild correctly.
+* Move default settings attribute descriptions to an `init` callback.
+* Avoid translating the UD API client default `product_name` before `init`.
+* Translate default settings (property types, setup assistant, property stats, search conversions) on `init` instead of in the `Settings` constructor.
+* Register attribute type labels on `init`.
+* Translate UD API client license screen labels on `init`.
 
 = 3.0.0 =
 * Full PHP 8.0-8.3 compatibility.

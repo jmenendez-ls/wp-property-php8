@@ -112,7 +112,7 @@ namespace UsabilityDynamics\UD_API {
        */
       protected function request( $args, $product, $error_log ) {
         $product = wp_parse_args( $product, array(
-          'product_name' => __( 'UsabilityDynamics Product', $this->domain ),
+          'product_name' => did_action( 'init' ) ? __( 'UsabilityDynamics Product', $this->domain ) : 'UsabilityDynamics Product',
         ) );
         $args = wp_parse_args( $args, array(
           'request' 		=> '',

@@ -15,6 +15,13 @@ namespace UsabilityDynamics\WPP {
     {
 
       /**
+       * Default keys set with untranslated labels before init, re-set in apply_translated_defaults().
+       *
+       * @var array
+       */
+      private $untranslated_defaults = array();
+
+      /**
        * Constructor
        * Sets default data.
        *
@@ -94,14 +101,7 @@ namespace UsabilityDynamics\WPP {
           'show_property_title' => true
         );
 
-        //** Default attribute label descriptions for the back-end */
-        $data['descriptions'] = array(
-          'descriptions' => array(
-            'property_type' => sprintf(__('The %s type will determine the layout.', ud_get_wp_property()->domain), \WPP_F::property_label()),
-            'custom_attribute_overview' => __('Customize what appears in search results in the attribute section.  For example: 1bed, 2baths, area varies slightly.', ud_get_wp_property()->domain),
-            'tagline' => __('Will appear on overview pages and on top of every listing page.', ud_get_wp_property()->domain)
-          )
-        );
+        add_action( 'init', array( $this, 'apply_translated_defaults' ), 0 );
 
         $_stored_settings = $this->get();
 
@@ -132,10 +132,11 @@ namespace UsabilityDynamics\WPP {
           $ar = array();
           if (empty($b_install)) {
             $ar = array(
-              'building' => __('Building', ud_get_wp_property()->domain),
-              'floorplan' => __('Floorplan', ud_get_wp_property()->domain),
-              'single_family_home' => __('Single Family Home', ud_get_wp_property()->domain)
+              'building' => 'Building',
+              'floorplan' => 'Floorplan',
+              'single_family_home' => 'Single Family Home'
             );
+            $this->untranslated_defaults[] = 'property_types';
           }
           $this->set('property_types', $ar);
         }
@@ -180,25 +181,26 @@ namespace UsabilityDynamics\WPP {
         if (!$d || !is_array($d)) {
           $this->set('property_assistant', array(
                     "default_atts" => array(
-                      'tagline' => __('Tagline', ud_get_wp_property()->domain),
-                      'location' => __('Address', ud_get_wp_property()->domain),
-                      'city' => __('City', ud_get_wp_property()->domain),
-                      'price' => __('Price', ud_get_wp_property()->domain),
-                      'year_built' => __('Year Built', ud_get_wp_property()->domain),
-                      'fees' => __('Fees', ud_get_wp_property()->domain)
+                      'tagline' => 'Tagline',
+                      'location' => 'Address',
+                      'city' => 'City',
+                      'price' => 'Price',
+                      'year_built' => 'Year Built',
+                      'fees' => 'Fees'
                     ),
                     "residential" => array(
-                      'bedrooms' => __('Bedrooms', ud_get_wp_property()->domain),
-                      'bathrooms' => __('Bathrooms', ud_get_wp_property()->domain),
-                      'total_rooms' => __('Total Rooms', ud_get_wp_property()->domain),
-                      'living_space' => __('Living space', ud_get_wp_property()->domain),
+                      'bedrooms' => 'Bedrooms',
+                      'bathrooms' => 'Bathrooms',
+                      'total_rooms' => 'Total Rooms',
+                      'living_space' => 'Living space',
                     ),
                     "commercial" => array(
-                      'business_purpose' => __('Business Purpose', ud_get_wp_property()->domain),  
+                      'business_purpose' => 'Business Purpose',
                     ),
                     "land" => array(
-                      'lot_size' => __('Lot Size', ud_get_wp_property()->domain), 
+                      'lot_size' => 'Lot Size',
                     )));
+          $this->untranslated_defaults[] = 'property_assistant';
         }
 
         //** Setup property types to be used. */
@@ -216,13 +218,14 @@ namespace UsabilityDynamics\WPP {
           $ar2 = array();
           if (empty($b_install)) {
             $ar = array(
-              'tagline' => __('Tagline', ud_get_wp_property()->domain),
-              'location' => __('Address', ud_get_wp_property()->domain),
-              'price' => __('Price', ud_get_wp_property()->domain),
-              'deposit' => __('Deposit', ud_get_wp_property()->domain),
-              'area' => __('Area', ud_get_wp_property()->domain),
-              'phone_number' => __('Phone Number', ud_get_wp_property()->domain),
+              'tagline' => 'Tagline',
+              'location' => 'Address',
+              'price' => 'Price',
+              'deposit' => 'Deposit',
+              'area' => 'Area',
+              'phone_number' => 'Phone Number',
             );
+            $this->untranslated_defaults[] = 'property_stats';
             $ar2 = array(
               'tagline' => '',
               'location' => '',
@@ -303,8 +306,9 @@ namespace UsabilityDynamics\WPP {
         $d = $this->get('search_conversions', false);
         if (!is_array($d)) {
           $this->set('search_conversions', array(
-            'bedrooms' => array(__('Studio', ud_get_wp_property()->domain) => '0.5')
+            'bedrooms' => array('Studio' => '0.5')
           ));
+          $this->untranslated_defaults[] = 'search_conversions';
         }
 
         //** Don't load defaults if settings exist in db */
@@ -332,6 +336,79 @@ namespace UsabilityDynamics\WPP {
         $wp_properties = $this->get();
 
 
+      }
+
+      /**
+       * Set translated defaults after init (WordPress 6.7+ textdomain timing).
+       */
+      public function apply_translated_defaults() {
+        global $wp_properties;
+
+        $domain = ud_get_wp_property()->domain;
+
+        foreach ( array_unique( $this->untranslated_defaults ) as $key ) {
+          switch ( $key ) {
+            case 'property_types':
+              $this->set( 'property_types', array(
+                'building' => __( 'Building', $domain ),
+                'floorplan' => __( 'Floorplan', $domain ),
+                'single_family_home' => __( 'Single Family Home', $domain ),
+              ) );
+              break;
+            case 'property_assistant':
+              $this->set( 'property_assistant', array(
+                'default_atts' => array(
+                  'tagline' => __( 'Tagline', $domain ),
+                  'location' => __( 'Address', $domain ),
+                  'city' => __( 'City', $domain ),
+                  'price' => __( 'Price', $domain ),
+                  'year_built' => __( 'Year Built', $domain ),
+                  'fees' => __( 'Fees', $domain ),
+                ),
+                'residential' => array(
+                  'bedrooms' => __( 'Bedrooms', $domain ),
+                  'bathrooms' => __( 'Bathrooms', $domain ),
+                  'total_rooms' => __( 'Total Rooms', $domain ),
+                  'living_space' => __( 'Living space', $domain ),
+                ),
+                'commercial' => array(
+                  'business_purpose' => __( 'Business Purpose', $domain ),
+                ),
+                'land' => array(
+                  'lot_size' => __( 'Lot Size', $domain ),
+                ),
+              ) );
+              break;
+            case 'property_stats':
+              $this->set( 'property_stats', array(
+                'tagline' => __( 'Tagline', $domain ),
+                'location' => __( 'Address', $domain ),
+                'price' => __( 'Price', $domain ),
+                'deposit' => __( 'Deposit', $domain ),
+                'area' => __( 'Area', $domain ),
+                'phone_number' => __( 'Phone Number', $domain ),
+              ) );
+              break;
+            case 'search_conversions':
+              $this->set( 'search_conversions', array(
+                'bedrooms' => array( __( 'Studio', $domain ) => '0.5' ),
+              ) );
+              break;
+          }
+        }
+        $this->untranslated_defaults = array();
+
+        $this->set( array(
+          'descriptions' => array(
+            'descriptions' => array(
+              'property_type' => sprintf( __( 'The %s type will determine the layout.', ud_get_wp_property()->domain ), \WPP_F::property_label() ),
+              'custom_attribute_overview' => __( 'Customize what appears in search results in the attribute section.  For example: 1bed, 2baths, area varies slightly.', ud_get_wp_property()->domain ),
+              'tagline' => __( 'Will appear on overview pages and on top of every listing page.', ud_get_wp_property()->domain ),
+            ),
+          ),
+        ) );
+
+        $wp_properties = $this->get();
       }
 
       static public function render_page()

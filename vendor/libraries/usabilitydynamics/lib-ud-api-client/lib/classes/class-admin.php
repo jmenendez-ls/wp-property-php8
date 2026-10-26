@@ -82,24 +82,20 @@ namespace UsabilityDynamics\UD_API {
         ) ) );
         
         //** Set available screens */
-        $screens = array();
-        if( $this->type == 'theme' ) {
-          $screens =array_filter( array(
-            'licenses' => __( 'License', $this->domain ),
-            'more_products' => false,
-          ) );
-        } elseif ( $this->type == 'plugin' ) {
-          $screens =array_filter( array(
-            'licenses' => __( 'Licenses', $this->domain ),
-            'more_products' => __( 'More Products', $this->domain ),
-          ) );
-        }
+        $screens = $this->get_screens( did_action( 'init' ) );
         
         //** UI */
         $this->ui = new UI( array_merge( $args, array(
           'token' => $this->token,
           'screens' => $screens,
         ) ) );
+        
+        //** Translate screen labels once the textdomain may load (WordPress 6.7+). */
+        if( !did_action( 'init' ) ) {
+          add_action( 'init', function() {
+            $this->ui->available_screens = $this->get_screens();
+          }, 0 );
+        }
         
         $path = wp_normalize_path( dirname( dirname( __DIR__ ) ) );
         $this->screens_path = trailingslashit( $path . '/static/templates' );
@@ -138,6 +134,28 @@ namespace UsabilityDynamics\UD_API {
          */
         add_action( 'ud::bootstrap::upgrade_notice::additional_info', array( $this, 'maybe_add_info_to_upgrade_notice' ), 10, 2 );
 
+      }
+      
+      /**
+       * Returns available screens.
+       *
+       * @param bool $translate Must be false before init (WordPress 6.7+ textdomain timing).
+       * @return array
+       */
+      public function get_screens( $translate = true ) {
+        $screens = array();
+        if( $this->type == 'theme' ) {
+          $screens = array_filter( array(
+            'licenses' => $translate ? __( 'License', $this->domain ) : 'License',
+            'more_products' => false,
+          ) );
+        } elseif ( $this->type == 'plugin' ) {
+          $screens = array_filter( array(
+            'licenses' => $translate ? __( 'Licenses', $this->domain ) : 'Licenses',
+            'more_products' => $translate ? __( 'More Products', $this->domain ) : 'More Products',
+          ) );
+        }
+        return $screens;
       }
       
       /**

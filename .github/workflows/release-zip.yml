@@ -1,0 +1,104 @@
+name: Build Release ZIP
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-zip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Build plugin directory
+        run: |
+          set -euo pipefail
+
+          SLUG="wp-property"
+          BUILD_ROOT="build"
+          BUILD_DIR="$BUILD_ROOT/$SLUG"
+
+          echo "==> Building $SLUG v$VERSION"
+
+          rm -rf "$BUILD_ROOT"
+          mkdir -p "$BUILD_DIR"
+
+          echo "==> Copying production files"
+
+          files=("wp-property.php" "composer.json" "readme.txt" "readme.md")
+          for f in "${files[@]}"; do
+            if [ -f "$f" ]; then
+              cp "$f" "$BUILD_DIR/$f"
+            else
+              echo "WARNING: expected file '$f' not found, skipping"
+            fi
+          done
+
+          dirs=("addons" "bin" "lib" "static" "vendor")
+          for d in "${dirs[@]}"; do
+            if [ -d "$d" ]; then
+              cp -r "$d" "$BUILD_DIR/$d"
+            else
+              echo "WARNING: expected directory '$d' not found, skipping"
+            fi
+          done
+
+          echo "==> Stripping dev/source artifacts"
+
+          removeList=(
+            "$BUILD_DIR/static/cache"
+            "$BUILD_DIR/static/codex"
+            "$BUILD_DIR/static/readme.html"
+            "$BUILD_DIR/static/styles/src"
+            "$BUILD_DIR/static/scripts/src"
+            "$BUILD_DIR/vendor/composer/installers"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ui/static/scripts/src"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ui/static/scripts/editor"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ui/static/styles/src"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ui/static/test"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ui/static/examples"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-ud-api-client/static/css/src"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-settings/static/scripts/src"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-settings/test"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-utility/test"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-utility/scripts/src"
+            "$BUILD_DIR/vendor/libraries/usabilitydynamics/lib-wp-shortcode/test"
+          )
+          for p in "${removeList[@]}"; do
+            if [ -e "$p" ]; then rm -rf "$p"; fi
+          done
+
+          # Remove LESS/JS source dirs from addons
+          if [ -d "$BUILD_DIR/addons" ]; then
+            find "$BUILD_DIR/addons" -type d \( -path '*/scripts/src' -o -path '*/styles/src' \) -exec rm -rf {} +
+          fi
+
+          # Remove nested .git/.svn from vendor and addons
+          for searchDir in "$BUILD_DIR/vendor" "$BUILD_DIR/addons"; do
+            if [ -d "$searchDir" ]; then
+              find "$searchDir" -type d \( -name '.git' -o -name '.svn' \) -exec rm -rf {} +
+            fi
+          done
+
+          # Remove vendor plugin nested src dirs (wp-rets-client bundles its own lib-ui)
+          if [ -d "$BUILD_DIR/vendor/plugins" ]; then
+            find "$BUILD_DIR/vendor/plugins" -type d \( -path '*/scripts/src' -o -path '*/styles/src' \) -exec rm -rf {} +
+          fi
+
+      - name: Create ZIP
+        run: |
+          set -euo pipefail
+          cd build
+          zip -r "wp-property-$VERSION.zip" wp-property
+          ls -lh "wp-property-$VERSION.zip"
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "build/wp-property-$VERSION.zip"

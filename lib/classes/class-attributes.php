@@ -17,46 +17,10 @@ namespace UsabilityDynamics\WPP {
        */
       public function __construct() {
 
-        // Standard attribute types.
-        $_attribute_types = array(
-          'input' => __( 'Short Text', ud_get_wp_property('domain') ),
-          'textarea' => __( 'Textarea', ud_get_wp_property('domain') ),
-          'checkbox' => __( 'Checkbox', ud_get_wp_property('domain') ),
-          'datetime' => __( 'Date and Time', ud_get_wp_property('domain') ),
-          'currency' => __( 'Currency', ud_get_wp_property('domain') ),
-          'number' => __( 'Number', ud_get_wp_property('domain') )
-        );
-
-        // New attribut type that uses [wpp_categorical] taxonomy.
-        if( WPP_FEATURE_FLAG_WPP_CATEGORICAL ) {
-          $_attribute_types[ 'categorical-term' ] = __( 'Common Terms', ud_get_wp_property( 'domain' ) );
-        }
-
-        // Legacy attribute types we no longer use.
-        if( WP_PROPERTY_LEGACY_ATTRIBUTE_INPUT_TYPES ) {
-
-          $_attribute_types = array_merge( $_attribute_types, array(
-            'wysiwyg' => __( 'Text Editor', ud_get_wp_property('domain') ),
-            'dropdown' => __( 'Dropdown Selection', ud_get_wp_property('domain') ),
-            'select_advanced' => __( 'Advanced Dropdown', ud_get_wp_property('domain') ),
-            'multi_checkbox' => __( 'Multi-Checkbox', ud_get_wp_property('domain') ),
-            'radio' => __( 'Radio', ud_get_wp_property('domain') ),
-            'url' => __( 'URL', ud_get_wp_property('domain') ),
-            'oembed' => __( 'Oembed', ud_get_wp_property('domain') ),
-            'date' => __( 'Date picker', ud_get_wp_property('domain') ),
-            'time' => __( 'Time picker', ud_get_wp_property('domain') ),
-            'color' => __( 'Color picker', ud_get_wp_property('domain') ),
-            'image_advanced' => __( 'Image upload', ud_get_wp_property('domain') ),
-            'file_advanced' => __( 'Files upload', ud_get_wp_property('domain') ),
-            'file_input' => __( 'File URL', ud_get_wp_property('domain') ),
-          ));
-
-        }
-
         /**
          * Add Available Attribute Types ( Meta Box Fields )
          */
-        ud_get_wp_property()->set( 'attributes.types', $_attribute_types );
+        add_action( 'init', array( $this, 'register_attribute_types' ), 0 );
 
         /**
          * Set schema for searchable attributes types.
@@ -144,6 +108,54 @@ namespace UsabilityDynamics\WPP {
          * Prepare attribute's value to display
          */
         add_filter( 'wpp::attribute::display', array( $this, 'prepare_to_display' ), 99, 2 );
+
+      }
+
+      /**
+       * Register available attribute types with translated labels (runs on init, WordPress 6.7+ textdomain timing).
+       */
+      public function register_attribute_types() {
+
+        // Standard attribute types.
+        $_attribute_types = array(
+          'input' => __( 'Short Text', ud_get_wp_property('domain') ),
+          'textarea' => __( 'Textarea', ud_get_wp_property('domain') ),
+          'checkbox' => __( 'Checkbox', ud_get_wp_property('domain') ),
+          'datetime' => __( 'Date and Time', ud_get_wp_property('domain') ),
+          'currency' => __( 'Currency', ud_get_wp_property('domain') ),
+          'number' => __( 'Number', ud_get_wp_property('domain') )
+        );
+
+        // New attribut type that uses [wpp_categorical] taxonomy.
+        if( WPP_FEATURE_FLAG_WPP_CATEGORICAL ) {
+          $_attribute_types[ 'categorical-term' ] = __( 'Common Terms', ud_get_wp_property( 'domain' ) );
+        }
+
+        // Legacy attribute types we no longer use.
+        if( WP_PROPERTY_LEGACY_ATTRIBUTE_INPUT_TYPES ) {
+
+          $_attribute_types = array_merge( $_attribute_types, array(
+            'wysiwyg' => __( 'Text Editor', ud_get_wp_property('domain') ),
+            'dropdown' => __( 'Dropdown Selection', ud_get_wp_property('domain') ),
+            'select_advanced' => __( 'Advanced Dropdown', ud_get_wp_property('domain') ),
+            'multi_checkbox' => __( 'Multi-Checkbox', ud_get_wp_property('domain') ),
+            'radio' => __( 'Radio', ud_get_wp_property('domain') ),
+            'url' => __( 'URL', ud_get_wp_property('domain') ),
+            'oembed' => __( 'Oembed', ud_get_wp_property('domain') ),
+            'date' => __( 'Date picker', ud_get_wp_property('domain') ),
+            'time' => __( 'Time picker', ud_get_wp_property('domain') ),
+            'color' => __( 'Color picker', ud_get_wp_property('domain') ),
+            'image_advanced' => __( 'Image upload', ud_get_wp_property('domain') ),
+            'file_advanced' => __( 'Files upload', ud_get_wp_property('domain') ),
+            'file_input' => __( 'File URL', ud_get_wp_property('domain') ),
+          ));
+
+        }
+
+        /**
+         * Add Available Attribute Types ( Meta Box Fields )
+         */
+        ud_get_wp_property()->set( 'attributes.types', $_attribute_types );
 
       }
 

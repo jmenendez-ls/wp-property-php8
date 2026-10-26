@@ -1,3 +1,9 @@
+### 3.0.1 (October 26, 2026)
+* Fixes WordPress 6.7+ _doing_it_wrong() notices when the `wpp` text domain was loaded before `init`. Schema localization, settings attribute descriptions, and the licensing API client default product name now defer translation until after `init`, with English fallbacks and schema cache refresh where needed.
+
+### 3.0.0 (June 17, 2026)
+* Added compatibility with PHP8. Full details can be found in the v3.0_changelog.md
+
 ### 2.4.6 ( December 21, 2021 )
 * Added compatibility with WordPress 5.8.2.
 

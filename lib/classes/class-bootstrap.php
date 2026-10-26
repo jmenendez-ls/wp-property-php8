@@ -43,6 +43,10 @@ namespace UsabilityDynamics\WPP {
       public function boot()
       {
 
+        add_action( 'init', function () {
+          $this->schema = null;
+        }, 0 );
+
         //** Initiate Meta Box Handler */
         new Meta_Box();
 
@@ -300,10 +304,19 @@ namespace UsabilityDynamics\WPP {
        */
       public function get_localization()
       {
-        return apply_filters('wpp::get_localization', array(
-          'licenses_menu_title' => __('Add-ons', $this->domain),
-          'licenses_page_title' => __('WP-Property Add-ons Manager', $this->domain),
-        ));
+        if ( ! did_action( 'init' ) ) {
+          $l10n = array(
+            'licenses_menu_title' => 'Add-ons',
+            'licenses_page_title' => 'WP-Property Add-ons Manager',
+          );
+        } else {
+          $l10n = array(
+            'licenses_menu_title' => __('Add-ons', $this->domain),
+            'licenses_page_title' => __('WP-Property Add-ons Manager', $this->domain),
+          );
+        }
+
+        return apply_filters('wpp::get_localization', $l10n);
       }
 
       /**
